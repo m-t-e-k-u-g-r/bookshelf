@@ -23,17 +23,17 @@ export class DataManager {
     }
 
     static async saveISBN(content: any) {
-        const file_data: string = JSON.stringify(content);
+        const file_data: string = JSON.stringify(content, null, 2);
         await fs.writeFile(ISBN_FILE, file_data);
     }
 
     static async saveBooks(content: any) {
-        const file_data: string = JSON.stringify(content);
+        const file_data: string = JSON.stringify(content, null, 2);
         await fs.writeFile(BOOKS_FILE, file_data);
     }
 
     static async saveShelves(content: any) {
-        const file_data: string = JSON.stringify(content);
+        const file_data: string = JSON.stringify(content, null, 2);
         await fs.writeFile(SHELVES_FILE, file_data);
     }
 }
