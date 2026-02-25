@@ -3,6 +3,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import booksRouter from './routes/books.js';
+import shelvesRouter from './routes/shelves.js';
 import { addBook, type Book, type APIResponse} from './lib/utils.js';
 import { DataManager } from "./lib/dataManager.js";
 
@@ -20,6 +21,7 @@ app.use(express.json());
 
 app.get('/isbn', (req, res) => res.send(ISBNdata));
 app.use('/books', booksRouter);
+app.use('/shelves', shelvesRouter);
 
 app.listen(PORT,
     () => console.log(`Server running on port ${PORT}.`)
