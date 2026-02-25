@@ -1,4 +1,5 @@
 import express from 'express';
+import { type Request, type Response } from 'express';
 import type { Book } from '../lib/utils.js';
 import {DataManager} from "../lib/dataManager.js";
 
@@ -49,5 +50,19 @@ router.route('/')
 
         res.status(200).send(sortedData);
     });
+
+router.route('/:isbn')
+    .get(async (req: Request, res: Response) => {
+        const rawISBN = req.params.isbn;
+        if (rawISBN == null) return res.status(400).json({error: 'Invalid ISBN'});
+        if (typeof rawISBN !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
+        const isbn: string = rawISBN.replace(/-/g, '');
+
+        const data: Book[] = await DataManager.getBooks();
+        const book: Book | undefined = data.find((b: any) => b.isbn.replace(/-/g, '') === isbn);
+        if (book == undefined) return res.status(404).json({error: 'Book not found'});
+
+        res.status(200).send(book);
+    })
 
 export default router;
