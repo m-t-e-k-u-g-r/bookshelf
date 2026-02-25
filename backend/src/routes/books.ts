@@ -116,6 +116,9 @@ router.route('/:isbn')
         ISBNdata = [...ISBNdata, cleanISBN];
         await DataManager.saveISBN(ISBNdata);
 
+        const books: Book[] = await DataManager.getBooks();
+        await DataManager.saveBooks([...books, entry]);
+
         return res.status(201).json({
             message: `Book '${entry.title}' added successfully`,
         });
