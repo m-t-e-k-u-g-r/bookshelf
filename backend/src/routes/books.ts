@@ -125,11 +125,13 @@ router.route('/:isbn')
     })
     .delete(async (req: Request, res: Response) => {
         // #swagger.tags = ['Books']
-        let data = await DataManager.getBooks();
+        let books = await DataManager.getBooks();
         let ISBNdata = await DataManager.getISBNs();
+
         const rawISBN = req.params.isbn;
-        if (rawISBN == null) return res.status(400).json({error: 'Invalid ISBN'});
-        if (typeof rawISBN !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
+        if (!rawISBN || typeof rawISBN !== 'string') {
+            return res.status(400).json({error: 'Invalid ISBN'});
+        }
         const isbn: string = rawISBN.replace(/-/g, '');
 
         let found: boolean = false;
@@ -140,11 +142,11 @@ router.route('/:isbn')
             found = true;
         }
 
-        const initialLength: number = data.length;
-        data = data.filter((book: any) => book.isbn.replace(/-/g, '') !== isbn);
+        const initialLength: number = books.length;
+        books = books.filter((book: any) => book.isbn.replace(/-/g, '') !== isbn);
 
-        if (data.length < initialLength) {
-            await DataManager.saveBooks(data);
+        if (books.length < initialLength) {
+            await DataManager.saveBooks(books);
             found = true;
         }
 
