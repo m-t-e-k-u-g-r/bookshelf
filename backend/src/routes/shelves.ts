@@ -54,5 +54,13 @@ router.route('/:shelfName')
         await DataManager.saveShelves(data);
         res.status(201).send(`Shelf '${name}' created.`);
     })
+    .delete(async (req: any, res: any) => {
+        const data = await DataManager.getBooks();
+        const name: string | null = req.params.shelfName?.trim() || null;
+        if (name == null) return res.status(400).json({error: 'Invalid shelf name'});
+        delete data[name];
+        await DataManager.saveShelves(data);
+        res.status(204).send(`Shelf '${name}' deleted.`);
+    });
 
 export default router;
