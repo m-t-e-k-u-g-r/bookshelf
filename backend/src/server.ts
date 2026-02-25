@@ -18,6 +18,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.get('/isbn', (req, res) => res.send(ISBNdata));
 app.use('/books', booksRouter);
 
 app.listen(PORT,
