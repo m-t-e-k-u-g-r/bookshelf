@@ -44,4 +44,15 @@ router.route('/')
         res.sendStatus(201);
     });
 
+router.route('/:shelfName')
+    .post(async (req: any, res: any) => {
+        const data = await DataManager.getBooks();
+        const name: string | null = req.params.shelfName?.trim() || null;
+        if (name == null) return res.status(400).json({error: 'Invalid shelf name'});
+        if (name in data) return res.status(409).json({error: `Shelf '${name}' already exists.`});
+        data[name] = [];
+        await DataManager.saveShelves(data);
+        res.status(201).send(`Shelf '${name}' created.`);
+    })
+
 export default router;
