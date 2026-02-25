@@ -86,5 +86,35 @@ router.route('/:isbn')
             res.status(200).json({message: 'Book already in list'});
         }
     })
+    .delete(async (req: Request, res: Response) => {
+        let data = await DataManager.getBooks();
+        let ISBNdata = await DataManager.getISBNs();
+        const rawISBN = req.params.isbn;
+        if (rawISBN == null) return res.status(400).json({error: 'Invalid ISBN'});
+        if (typeof rawISBN !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
+        const isbn: string = rawISBN.replace(/-/g, '');
+
+        let found: boolean = false;
+
+        if (ISBNdata.includes(isbn)) {
+            ISBNdata = ISBNdata.filter((i: string) => i.replace(/-/g, '') !== isbn);
+            await DataManager.saveISBN(ISBNdata);
+            found = true;
+        }
+
+        const initialLength: number = data.length;
+        data = data.filter((book: any) => book.isbn.replace(/-/g, '') !== isbn);
+
+        if (data.length < initialLength) {
+            await DataManager.saveBooks(data);
+            found = true;
+        }
+
+        if (found) {
+            res.status(200).send(`Book '${isbn}' removed from library`);
+        } else {
+            res.status(404).json({error: `Book '${isbn}' not found`});
+        }
+    });
 
 export default router;
