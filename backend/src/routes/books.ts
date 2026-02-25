@@ -30,8 +30,11 @@ function sort(data: Book[], sortBy: SortBy, order: SortOrder): Book[] {
 
 router.route('/')
     .get(async (req: any, res: any) => {
-        let { sortBy, order, hide } = req.query;
+        // #swagger.tags = ['Books']
+        // #swagger.parameters['sortBy'] = { $ref: '#/components/parameters/SortByParam' }
+        // #swagger.parameters['order'] = { $ref: '#/components/parameters/OrderParam' }
         const data = await DataManager.getBooks();
+        let { sortBy, order, hide } = req.query;
 
         if (!Object.values(SortBy).includes(sortBy as SortBy)) {
             sortBy = SortBy.TITLE;
@@ -52,6 +55,7 @@ router.route('/')
     });
 
 router.route('/reset').post(async (req: Request, res: Response) => {
+    // #swagger.tags = ['Books']
     let data: any[] = [];
     const ISBNdata = await DataManager.getISBNs();
     for (const isbn of ISBNdata) {
@@ -70,6 +74,7 @@ router.route('/reset').post(async (req: Request, res: Response) => {
 
 router.route('/:isbn')
     .get(async (req: Request, res: Response) => {
+        // #swagger.tags = ['Books']
         const rawISBN = req.params.isbn;
         if (rawISBN == null) return res.status(400).json({error: 'Invalid ISBN'});
         if (typeof rawISBN !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
@@ -82,6 +87,7 @@ router.route('/:isbn')
         res.status(200).send(book);
     })
     .post(async (req: Request, res: Response) => {
+        // #swagger.tags = ['Books']
         let ISBNdata = await DataManager.getISBNs();
         const rawISBN = req.params.isbn;
         if (rawISBN == null) return res.status(400).json({error: 'Invalid ISBN'});
@@ -104,6 +110,7 @@ router.route('/:isbn')
         }
     })
     .delete(async (req: Request, res: Response) => {
+        // #swagger.tags = ['Books']
         let data = await DataManager.getBooks();
         let ISBNdata = await DataManager.getISBNs();
         const rawISBN = req.params.isbn;

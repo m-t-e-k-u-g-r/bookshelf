@@ -5,10 +5,12 @@ const router = express.Router();
 
 router.route('/')
     .get(async (req: any, res: any) => {
+        // #swagger.tags = ['Shelves']
         const data = await DataManager.getShelves();
         res.status(200).send(data);
     })
     .post(async (req: any, res: any) => {
+        // #swagger.tags = ['Shelves']
         const data = await DataManager.getShelves();
         const isbn: string = req.body.isbn;
         const selectedShelves: string[] = req.body.shelves;
@@ -29,6 +31,7 @@ router.route('/')
         res.sendStatus(201);
     })
     .put(async (req: any, res: any) => {
+        // #swagger.tags = ['Shelves']
         const data = await DataManager.getShelves();
         const shelf: string = req.body.shelf;
         const newShelfName: string = req.body.shelfName;
@@ -46,6 +49,7 @@ router.route('/')
 
 router.route('/:shelfName')
     .post(async (req: any, res: any) => {
+        // #swagger.tags = ['Shelves']
         const data = await DataManager.getBooks();
         const name: string | null = req.params.shelfName?.trim() || null;
         if (name == null) return res.status(400).json({error: 'Invalid shelf name'});
@@ -55,6 +59,7 @@ router.route('/:shelfName')
         res.status(201).send(`Shelf '${name}' created.`);
     })
     .delete(async (req: any, res: any) => {
+        // #swagger.tags = ['Shelves']
         const data = await DataManager.getBooks();
         const name: string | null = req.params.shelfName?.trim() || null;
         if (name == null) return res.status(400).json({error: 'Invalid shelf name'});

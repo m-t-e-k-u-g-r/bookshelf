@@ -1,7 +1,13 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
+import { type Request, type Response } from 'express';
+import { readFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
+const swaggerPath = new URL('./swagger/swagger.json', import.meta.url);
+const swaggerDoc = JSON.parse(await readFile(fileURLToPath(swaggerPath), 'utf8'));
 import booksRouter from './routes/books.js';
 import shelvesRouter from './routes/shelves.js';
 import { addBook, type Book, type APIResponse} from './lib/utils.js';
@@ -19,9 +25,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.get('/isbn', (req, res) => res.send(ISBNdata));
+app.get('/isbn', (req: Request, res: Response) => res.send(ISBNdata));
 app.use('/books', booksRouter);
 app.use('/shelves', shelvesRouter);
+app.use('/swagger-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 app.listen(PORT,
     () => console.log(`Server running on port ${PORT}.`)
