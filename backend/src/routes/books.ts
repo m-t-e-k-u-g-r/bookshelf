@@ -1,6 +1,6 @@
 import express from 'express';
 import { type Request, type Response } from 'express';
-import { type APIResponse, type Book, formatISBN, getBook } from '../lib/utils.js';
+import {addBook, type APIResponse, type Book, formatISBN, getBook} from '../lib/utils.js';
 import {DataManager} from "../lib/dataManager.js";
 
 enum SortBy {
@@ -50,6 +50,23 @@ router.route('/')
 
         res.status(200).send(sortedData);
     });
+
+router.route('/reset').post(async (req: Request, res: Response) => {
+    let data: any[] = [];
+    const ISBNdata = await DataManager.getISBNs();
+    for (const isbn of ISBNdata) {
+        const response: APIResponse = await addBook(isbn, data);
+        if (response.status === 201) {
+            const book: Book = response.data;
+            if (book) data = [...data, book];
+        } else {
+            console.log(response);
+        }
+    }
+    await DataManager.saveBooks(data);
+    const bookCount: number = data.length;
+    res.status(200).send(`${bookCount} books synchronized.`);
+});
 
 router.route('/:isbn')
     .get(async (req: Request, res: Response) => {
