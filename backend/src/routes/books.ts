@@ -135,7 +135,7 @@ router.route('/:isbn')
         }
 
         if (found) {
-            res.status(200).send(`Book '${isbn}' removed from library`);
+            res.sendStatus(204);
         } else {
             res.status(404).json({error: `Book '${isbn}' not found`});
         }

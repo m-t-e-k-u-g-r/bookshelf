@@ -44,13 +44,13 @@ router.route('/')
             return res.sendStatus(500);
         }
         await DataManager.saveShelves(data);
-        res.sendStatus(201);
+        res.sendStatus(200);
     });
 
 router.route('/:shelfName')
     .post(async (req: any, res: any) => {
         // #swagger.tags = ['Shelves']
-        const data = await DataManager.getBooks();
+        const data = await DataManager.getShelves();
         const name: string | null = req.params.shelfName?.trim() || null;
         if (name == null) return res.status(400).json({error: 'Invalid shelf name'});
         if (name in data) return res.status(409).json({error: `Shelf '${name}' already exists.`});
@@ -60,12 +60,12 @@ router.route('/:shelfName')
     })
     .delete(async (req: any, res: any) => {
         // #swagger.tags = ['Shelves']
-        const data = await DataManager.getBooks();
+        const data = await DataManager.getShelves();
         const name: string | null = req.params.shelfName?.trim() || null;
         if (name == null) return res.status(400).json({error: 'Invalid shelf name'});
         delete data[name];
         await DataManager.saveShelves(data);
-        res.status(204).send(`Shelf '${name}' deleted.`);
+        res.sendStatus(204);
     });
 
 export default router;
