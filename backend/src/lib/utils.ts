@@ -48,6 +48,15 @@ export function formatISBN(rawIsbn: string): string | undefined {
     return undefined;
 }
 
+export async function addBook(isbn: string, data: any): Promise<APIResponse> {
+    const entry = data.find((e: any) => e.isbn == isbn);
+    const response: APIResponse = await getBook(isbn);
+    if (!entry) {
+        return { status: 201, data: response.data };
+    }
+    return { status: 204 };
+}
+
 export async function getBook(isbn: string): Promise<APIResponse> {
     const api_url: string = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn.replace(/-/g, '')}`;
     try {
