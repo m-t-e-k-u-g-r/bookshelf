@@ -42,3 +42,30 @@ GET http://localhost:5500/books/0000000000000 HTTP/1.1
         client.assert(response.status === 404, "Response status is not 404");
     });
 %}
+
+### POST REQUEST TO UPDATE LIST (RESET)
+POST http://localhost:5500/books/reset HTTP/1.1
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### POST BOOK - NOT FOUND (INVALID ISBN)
+POST http://localhost:5500/books/0000000000000 HTTP/1.1
+
+> {%
+    client.test("Post book not found", function() {
+        client.assert(response.status === 404, "Expected code 404, got: " + response.status);
+    });
+%}
+
+### ADD NEW BOOK
+POST http://localhost:5500/books/9781853260001 HTTP/1.1
+
+> {%
+    client.test("Post book successful", function() {
+        client.assert(response.status === 201, "Expected code 201, got: " + response.status);
+    })
+%}
