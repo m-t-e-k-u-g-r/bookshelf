@@ -88,26 +88,37 @@ router.route('/:isbn')
     })
     .post(async (req: Request, res: Response) => {
         // #swagger.tags = ['Books']
-        let ISBNdata = await DataManager.getISBNs();
         const rawISBN = req.params.isbn;
-        if (rawISBN == null) return res.status(400).json({error: 'Invalid ISBN'});
-        if (typeof rawISBN !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
+        if (!rawISBN || typeof rawISBN !== 'string') {
+            return res.status(400).json({error: 'Invalid ISBN'});
+        }
 
-        const response: APIResponse = await getBook(rawISBN);
-        if (response.status !== 200) return res.status(response.status).json({error: response.error});
+        const validISBN: string | undefined = formatISBN(rawISBN);
+        if (!validISBN) {
+            return res.status(400).json({error: 'Invalid ISBN'});
+        }
+
+        let ISBNdata = await DataManager.getISBNs();
+        const cleanISBN: string = validISBN.replace(/-/g, '');
+
+        const alreadyExists: boolean = ISBNdata.some((i: string) => i.replace(/-/g, '') === cleanISBN);
+        if (alreadyExists) {
+            return res.status(409).json({error: `Book with ISBN '${cleanISBN}' already exists.`});
+        }
+
+        const response: APIResponse = await getBook(validISBN);
+        if (response.status !== 200) {
+            return res.status(response.status).json({error: response.error});
+        }
+
         const entry: Book = response.data;
 
-        const cleanIsbn: string = rawISBN.replace(/-/g, '');
+        ISBNdata = [...ISBNdata, cleanISBN];
+        await DataManager.saveISBN(ISBNdata);
 
-        if (!ISBNdata.includes(cleanIsbn)) {
-            const formattedIsbn: string | undefined = formatISBN(cleanIsbn);
-            const isbn: string = formattedIsbn !== undefined ? formattedIsbn : cleanIsbn;
-            ISBNdata = [...ISBNdata, isbn];
-            await DataManager.saveISBN(ISBNdata);
-            res.status(201).json({message: `Book '${entry.title}' by '${entry.author}' added to sync list`});
-        } else {
-            res.status(200).json({message: 'Book already in list'});
-        }
+        return res.status(201).json({
+            message: `Book '${entry.title}' added successfully`,
+        });
     })
     .delete(async (req: Request, res: Response) => {
         // #swagger.tags = ['Books']
