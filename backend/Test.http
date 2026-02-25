@@ -1,5 +1,5 @@
 ### GET ALL BOOKS
-GET http://localhost:5500/books HTTP/1.1
+GET http://{{host}}:{{port}}/books HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -8,7 +8,7 @@ GET http://localhost:5500/books HTTP/1.1
 %}
 
 ### GET ALL BOOKS SORTED BY AUTHOR (DESCENDING)
-GET http://localhost:5500/books?sortBy=author&order=desc HTTP/1.1
+GET http://{{host}}:{{port}}/books?sortBy=author&order=desc HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -17,7 +17,7 @@ GET http://localhost:5500/books?sortBy=author&order=desc HTTP/1.1
 %}
 
 ### GET ALL BOOKS AND HIDE ATTRIBUTES
-GET http://localhost:5500/books?hide=isbn,imgUrl HTTP/1.1
+GET http://{{host}}:{{port}}/books?hide=isbn,imgUrl HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -26,7 +26,7 @@ GET http://localhost:5500/books?hide=isbn,imgUrl HTTP/1.1
 %}
 
 ### GET ONE BOOK (FIRST OF SEED)
-GET http://localhost:5500/books/9781806982516 HTTP/1.1
+GET http://{{host}}:{{port}}/books/9781806982516 HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -35,7 +35,7 @@ GET http://localhost:5500/books/9781806982516 HTTP/1.1
 %}
 
 ### GET ONE BOOK - NOT FOUND
-GET http://localhost:5500/books/0000000000000 HTTP/1.1
+GET http://{{host}}:{{port}}/books/0000000000000 HTTP/1.1
 
 > {%
     client.test("Request failed as expected", function() {
@@ -44,7 +44,7 @@ GET http://localhost:5500/books/0000000000000 HTTP/1.1
 %}
 
 ### POST REQUEST TO UPDATE LIST (RESET)
-POST http://localhost:5500/books/reset HTTP/1.1
+POST http://{{host}}:{{port}}/books/reset HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -53,7 +53,7 @@ POST http://localhost:5500/books/reset HTTP/1.1
 %}
 
 ### POST BOOK - NOT FOUND (INVALID ISBN)
-POST http://localhost:5500/books/0000000000000 HTTP/1.1
+POST http://{{host}}:{{port}}/books/0000000000000 HTTP/1.1
 
 > {%
     client.test("Post book not found", function() {
@@ -62,7 +62,7 @@ POST http://localhost:5500/books/0000000000000 HTTP/1.1
 %}
 
 ### ADD NEW BOOK
-POST http://localhost:5500/books/9781853260001 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9781853260001 HTTP/1.1
 
 > {%
     client.test("Post book successful", function() {
@@ -71,7 +71,7 @@ POST http://localhost:5500/books/9781853260001 HTTP/1.1
 %}
 
 ### REMOVE BOOK
-DELETE http://localhost:5500/books/9781853260001 HTTP/1.1
+DELETE http://{{host}}:{{port}}/books/9781853260001 HTTP/1.1
 
 > {%
     client.test("Delete book successful", function() {
@@ -80,7 +80,7 @@ DELETE http://localhost:5500/books/9781853260001 HTTP/1.1
 %}
 
 ### DELETE NON-EXISTENT BOOK
-DELETE http://localhost:5500/books/1234567890123 HTTP/1.1
+DELETE http://{{host}}:{{port}}/books/1234567890123 HTTP/1.1
 
 > {%
     client.test("Expect 404 for non-existent book", function() {
@@ -89,7 +89,7 @@ DELETE http://localhost:5500/books/1234567890123 HTTP/1.1
 %}
 
 ### GET ALL SHELVES
-GET http://localhost:5500/shelves HTTP/1.1
+GET http://{{host}}:{{port}}/shelves HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -98,7 +98,7 @@ GET http://localhost:5500/shelves HTTP/1.1
 %}
 
 ### CREATE A NEW SHELF
-POST http://localhost:5500/shelves/ScienceFiction HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/ScienceFiction HTTP/1.1
 
 > {%
     client.test("Create shelf", function() {
@@ -107,7 +107,7 @@ POST http://localhost:5500/shelves/ScienceFiction HTTP/1.1
 %}
 
 ### CREATE SHELF WITH INVALID NAME (EMPTY)
-POST http://localhost:5500/shelves/%20 HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/%20 HTTP/1.1
 
 > {%
     client.test("Expect 400 for invalid shelf name", function() {
@@ -116,7 +116,7 @@ POST http://localhost:5500/shelves/%20 HTTP/1.1
 %}
 
 ### ASSIGN BOOK TO SHELVES
-POST http://localhost:5500/shelves/ HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/ HTTP/1.1
 Content-Type: application/json
 
 {
@@ -131,7 +131,7 @@ Content-Type: application/json
 %}
 
 ### RENAME A SHELF
-PUT http://localhost:5500/shelves/ HTTP/1.1
+PUT http://{{host}}:{{port}}/shelves/ HTTP/1.1
 Content-Type: application/json
 
 {
@@ -146,4 +146,4 @@ Content-Type: application/json
 %}
 
 ### DELETE A SHELF
-DELETE http://localhost:5500/shelves/Sci-Fi HTTP/1.1
+DELETE http://{{host}}:{{port}}/shelves/Sci-Fi HTTP/1.1

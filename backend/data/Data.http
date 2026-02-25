@@ -1,57 +1,57 @@
 ### Add book 1
-POST http://localhost:5500/books/9781806982516 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9781806982516 HTTP/1.1
 
 ### Add book 2
-POST http://localhost:5500/books/9780140449136 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9780140449136 HTTP/1.1
 
 ### Add book 3
-POST http://localhost:5500/books/9783038580171 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9783038580171 HTTP/1.1
 
 ### Add book 4
-POST http://localhost:5500/books/9780486821955 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9780486821955 HTTP/1.1
 
 ### Add book 5
-POST http://localhost:5500/books/9783988689573 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9783988689573 HTTP/1.1
 
 ### Add book 6
-POST http://localhost:5500/books/9780140444308 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9780140444308 HTTP/1.1
 
 ### Add book 7
-POST http://localhost:5500/books/9780140449129 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9780140449129 HTTP/1.1
 
 ### Add book 8
-POST http://localhost:5500/books/9780060883287 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9780060883287 HTTP/1.1
 
 ### Add book 9
-POST http://localhost:5500/books/9780140449174 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9780140449174 HTTP/1.1
 
 ### Add book 10
-POST http://localhost:5500/books/9781806982561 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9781806982561 HTTP/1.1
 
 ### Add book 11
-POST http://localhost:5500/books/9781781393192 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9781781393192 HTTP/1.1
 
 ### Add book 12
-POST http://localhost:5500/books/9780140275360 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9780140275360 HTTP/1.1
 
 ### Add book 13
-POST http://localhost:5500/books/9780141439570 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9780141439570 HTTP/1.1
 
 ### Add book 14
-POST http://localhost:5500/books/9780140447934 HTTP/1.1
+POST http://{{host}}:{{port}}/books/9780140447934 HTTP/1.1
 
 ### Create shelf: Classics
-POST http://localhost:5500/shelves/Classics HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/Classics HTTP/1.1
 
 ### Create shelf: Philosophy
-POST http://localhost:5500/shelves/Philosophy HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/Philosophy HTTP/1.1
 
 ### Create shelf: Favorites
-POST http://localhost:5500/shelves/Favorites HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/Favorites HTTP/1.1
 
 
 ### Assign: 9780140449136 -> Classics, Favorites
-POST http://localhost:5500/shelves/ HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/ HTTP/1.1
 Content-Type: application/json
 
 {
@@ -60,7 +60,7 @@ Content-Type: application/json
 }
 
 ### Assign: 9780140444308 -> Classics
-POST http://localhost:5500/shelves/ HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/ HTTP/1.1
 Content-Type: application/json
 
 {
@@ -69,7 +69,7 @@ Content-Type: application/json
 }
 
 ### Assign: 9780486821955 -> Classics
-POST http://localhost:5500/shelves/ HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/ HTTP/1.1
 Content-Type: application/json
 
 {
@@ -78,7 +78,7 @@ Content-Type: application/json
 }
 
 ### Assign: 9783038580171 -> Philosophy, Favorites
-POST http://localhost:5500/shelves/ HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/ HTTP/1.1
 Content-Type: application/json
 
 {
@@ -87,7 +87,7 @@ Content-Type: application/json
 }
 
 ### Assign: 9780060883287 -> Favorites
-POST http://localhost:5500/shelves/ HTTP/1.1
+POST http://{{host}}:{{port}}/shelves/ HTTP/1.1
 Content-Type: application/json
 
 {
