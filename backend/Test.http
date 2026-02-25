@@ -1,0 +1,44 @@
+### GET ALL BOOKS
+GET http://localhost:5500/books HTTP/1.1
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### GET ALL BOOKS SORTED BY AUTHOR (DESCENDING)
+GET http://localhost:5500/books?sortBy=author&order=desc HTTP/1.1
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### GET ALL BOOKS AND HIDE ATTRIBUTES
+GET http://localhost:5500/books?hide=isbn,imgUrl HTTP/1.1
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### GET ONE BOOK (FIRST OF SEED)
+GET http://localhost:5500/books/9781806982516 HTTP/1.1
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### GET ONE BOOK - NOT FOUND
+GET http://localhost:5500/books/0000000000000 HTTP/1.1
+
+> {%
+    client.test("Request failed as expected", function() {
+        client.assert(response.status === 404, "Response status is not 404");
+    });
+%}
