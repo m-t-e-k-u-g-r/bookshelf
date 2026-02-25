@@ -28,5 +28,20 @@ router.route('/')
         await DataManager.saveShelves(data);
         res.sendStatus(201);
     })
+    .put(async (req: any, res: any) => {
+        const data = await DataManager.getShelves();
+        const shelf: string = req.body.shelf;
+        const newShelfName: string = req.body.shelfName;
+        if (shelf == null || newShelfName == null) return res.status(400).json({error: 'Invalid request body'});
+        if (!(shelf in data)) return res.status(404).json({error: `Shelf '${shelf}' not found`});
+        try {
+            data[newShelfName] = data[shelf];
+            delete data[shelf];
+        } catch (e) {
+            return res.sendStatus(500);
+        }
+        await DataManager.saveShelves(data);
+        res.sendStatus(201);
+    });
 
 export default router;
