@@ -96,3 +96,36 @@ GET http://localhost:5500/shelves HTTP/1.1
         client.assert(response.status === 200, "Response status is not 200");
     });
 %}
+
+### CREATE A NEW SHELF
+POST http://localhost:5500/shelves/ScienceFiction HTTP/1.1
+
+> {%
+    client.test("Create shelf", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+    });
+%}
+
+### CREATE SHELF WITH INVALID NAME (EMPTY)
+POST http://localhost:5500/shelves/%20 HTTP/1.1
+
+> {%
+    client.test("Expect 400 for invalid shelf name", function() {
+        client.assert(response.status === 400, "Response status is not 400");
+    });
+%}
+
+### ASSIGN BOOK TO SHELVES
+POST http://localhost:5500/shelves/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "isbn": "9781806982516",
+  "shelves": ["ScienceFiction", "Favorites"]
+}
+
+> {%
+    client.test("Add book to shelf", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+    });
+%}
