@@ -1,7 +1,7 @@
 import express from 'express';
 import { type Request, type Response, type Router } from 'express';
 import {addBook, type APIResponse, formatISBN, getBook} from '../lib/utils.js';
-import {type Book, type ISBNList} from '../lib/dataManager.js';
+import {type Book, type ISBNList, type Shelves} from '../lib/dataManager.js';
 import {DataManager} from "../lib/dataManager.js";
 
 enum SortBy {
@@ -128,6 +128,7 @@ router.route('/:isbn')
         // #swagger.tags = ['Books']
         let books: Book[] = await DataManager.getBooks();
         let ISBNdata: ISBNList = await DataManager.getISBNs();
+        let shelves: Shelves = await DataManager.getShelves();
 
         const rawISBN = req.params.isbn;
         if (!rawISBN || typeof rawISBN !== 'string') {
@@ -150,6 +151,14 @@ router.route('/:isbn')
             await DataManager.saveBooks(books);
             found = true;
         }
+
+        Object.keys(shelves).forEach(key => {
+            const shelf: ISBNList | undefined = shelves[key];
+            if (shelf !== undefined) {
+                shelves[key] = shelf.filter((i: string) => i.replace(/-/g, '') !== isbn);
+            }
+        });
+        await DataManager.saveShelves(shelves);
 
         if (found) {
             res.sendStatus(204);
