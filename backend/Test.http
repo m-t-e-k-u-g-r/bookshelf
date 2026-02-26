@@ -53,11 +53,11 @@ POST http://{{host}}:{{port}}/books/reset HTTP/1.1
 %}
 
 ### POST BOOK - NOT FOUND (INVALID ISBN)
-POST http://{{host}}:{{port}}/books/0000000000000 HTTP/1.1
+POST http://{{host}}:{{port}}/books/1234567890123 HTTP/1.1
 
 > {%
     client.test("Post book not found", function() {
-        client.assert(response.status === 404, "Expected code 404, got: " + response.status);
+        client.assert(response.status === 400, "Expected code 400, got: " + response.status);
     });
 %}
 
