@@ -58,7 +58,13 @@ export async function addBook(isbn: string, data: any): Promise<APIResponse> {
 }
 
 export async function getBook(isbn: string): Promise<APIResponse> {
-    const api_url: string = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn.replace(/-/g, '')}`;
+    const apiKey: string | undefined = process.env.API_KEY;
+    let api_url: string = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn.replace(/-/g, '')}`;
+
+    if (apiKey) {
+        api_url += `&key=${apiKey}`;
+    }
+
     try {
         const response: Response = await fetch(api_url);
         if (!response.ok) {

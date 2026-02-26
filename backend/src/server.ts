@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../../.env')});
 import express from 'express';
 import { type Request, type Response } from 'express';
 import { readFile } from 'node:fs/promises'
-import { fileURLToPath } from 'node:url';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 const swaggerPath = new URL('./swagger/swagger.json', import.meta.url);
