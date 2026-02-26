@@ -1,6 +1,6 @@
 import express from 'express';
 import { type Request, type Response, type Router } from 'express';
-import {addBook, type APIResponse, formatISBN, getBook} from '../lib/utils.js';
+import {addBook, type APIResponse, cleanIsbn, formatISBN, getBook} from '../lib/utils.js';
 import {type Book, type ISBNList, type Shelves} from '../lib/dataManager.js';
 import {DataManager} from "../lib/dataManager.js";
 
@@ -79,10 +79,10 @@ router.route('/:isbn')
         const rawISBN = req.params.isbn;
         if (rawISBN == null) return res.status(400).json({error: 'Invalid ISBN'});
         if (typeof rawISBN !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
-        const isbn: string = rawISBN.replace(/-/g, '');
+        const isbn: string = cleanIsbn(rawISBN);
 
         const data: Book[] = await DataManager.getBooks();
-        const book: Book | undefined = data.find((b: any) => b.isbn.replace(/-/g, '') === isbn);
+        const book: Book | undefined = data.find((b: any) => cleanIsbn(b.isbn) === isbn);
         if (book == undefined) return res.status(404).json({error: 'Book not found'});
 
         res.status(200).send(book);
@@ -102,7 +102,7 @@ router.route('/:isbn')
         let ISBNdata: ISBNList = await DataManager.getISBNs();
         const cleanISBN: string = validISBN.replace(/-/g, '');
 
-        const alreadyExists: boolean = ISBNdata.some((i: string) => i.replace(/-/g, '') === cleanISBN);
+        const alreadyExists: boolean = ISBNdata.some((i: string) => cleanIsbn(i) === cleanISBN);
         if (alreadyExists) {
             return res.status(409).json({error: `Book with ISBN '${cleanISBN}' already exists.`});
         }
@@ -134,18 +134,18 @@ router.route('/:isbn')
         if (!rawISBN || typeof rawISBN !== 'string') {
             return res.status(400).json({error: 'Invalid ISBN'});
         }
-        const isbn: string = rawISBN.replace(/-/g, '');
+        const isbn: string = cleanIsbn(rawISBN);
 
         let found: boolean = false;
 
         if (ISBNdata.includes(isbn)) {
-            ISBNdata = ISBNdata.filter((i: string) => i.replace(/-/g, '') !== isbn);
+            ISBNdata = ISBNdata.filter((i: string) => cleanIsbn(i) !== isbn);
             await DataManager.saveISBN(ISBNdata);
             found = true;
         }
 
         const initialLength: number = books.length;
-        books = books.filter((book: any) => book.isbn.replace(/-/g, '') !== isbn);
+        books = books.filter((book: any) => cleanIsbn(book.isbn) !== isbn);
 
         if (books.length < initialLength) {
             await DataManager.saveBooks(books);
@@ -155,7 +155,7 @@ router.route('/:isbn')
         Object.keys(shelves).forEach(key => {
             const shelf: ISBNList | undefined = shelves[key];
             if (shelf !== undefined) {
-                shelves[key] = shelf.filter((i: string) => i.replace(/-/g, '') !== isbn);
+                shelves[key] = shelf.filter((i: string) => cleanIsbn(i) !== isbn);
             }
         });
         await DataManager.saveShelves(shelves);
