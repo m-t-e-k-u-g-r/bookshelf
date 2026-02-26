@@ -6,18 +6,32 @@ const BOOKS_FILE: string = path.join(DATA_DIR, 'books.json');
 const ISBN_FILE: string = path.join(DATA_DIR, 'isbn.json');
 const SHELVES_FILE: string = path.join(DATA_DIR, 'shelves.json');
 
+export interface Book {
+    isbn: string;
+    title: string;
+    author: string;
+    publish_date: string;
+    imgUrl: string | undefined;
+}
+
+export interface Shelves {
+    [shelfName: string]: ISBNList;
+}
+
+export type ISBNList = string[];
+
 export class DataManager {
-    static async getISBNs() {
+    static async getISBNs(): Promise<ISBNList> {
         const data: string = await fs.readFile(ISBN_FILE, 'utf-8');
         return JSON.parse(data);
     }
 
-    static async getBooks() {
+    static async getBooks(): Promise<Book[]> {
         const data: string = await fs.readFile(BOOKS_FILE, 'utf-8');
         return JSON.parse(data);
     }
 
-    static async getShelves() {
+    static async getShelves(): Promise<Shelves> {
         const data: string = await fs.readFile(SHELVES_FILE, 'utf-8');
         return JSON.parse(data);
     }

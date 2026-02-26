@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname: string = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../.env')});
-import express from 'express';
+import express, {type Express} from 'express';
 import { type Request, type Response } from 'express';
 import { readFile } from 'node:fs/promises'
 import cors from 'cors';
@@ -12,15 +12,16 @@ const swaggerPath = new URL('./swagger/swagger.json', import.meta.url);
 const swaggerDoc = JSON.parse(await readFile(fileURLToPath(swaggerPath), 'utf8'));
 import booksRouter from './routes/books.js';
 import shelvesRouter from './routes/shelves.js';
-import { addBook, type Book, type APIResponse} from './lib/utils.js';
+import { addBook, type APIResponse} from './lib/utils.js';
+import {type Book, type ISBNList} from './lib/dataManager.js';
 import { DataManager } from "./lib/dataManager.js";
 
-const ISBNdata = await DataManager.getISBNs();
-let books = await DataManager.getBooks();
-let hasChanges = false;
+const ISBNdata: ISBNList = await DataManager.getISBNs();
+let books: Book[] = await DataManager.getBooks();
+let hasChanges: boolean = false;
 
 const PORT: string = process.env.PORT || '5500';
-const app = express();
+const app: Express = express();
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,

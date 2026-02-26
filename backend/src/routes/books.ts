@@ -1,6 +1,7 @@
 import express from 'express';
-import { type Request, type Response } from 'express';
-import {addBook, type APIResponse, type Book, formatISBN, getBook} from '../lib/utils.js';
+import { type Request, type Response, type Router } from 'express';
+import {addBook, type APIResponse, formatISBN, getBook} from '../lib/utils.js';
+import {type Book, type ISBNList} from '../lib/dataManager.js';
 import {DataManager} from "../lib/dataManager.js";
 
 enum SortBy {
@@ -14,7 +15,7 @@ enum SortOrder {
     DESC = 'desc'
 }
 
-const router = express.Router();
+const router: Router = express.Router();
 
 function sort(data: Book[], sortBy: SortBy, order: SortOrder): Book[] {
     return [...data].sort((a: any, b: any) => {
@@ -29,11 +30,11 @@ function sort(data: Book[], sortBy: SortBy, order: SortOrder): Book[] {
 }
 
 router.route('/')
-    .get(async (req: any, res: any) => {
+    .get(async (req: Request, res: Response) => {
         // #swagger.tags = ['Books']
         // #swagger.parameters['sortBy'] = { $ref: '#/components/parameters/SortByParam' }
         // #swagger.parameters['order'] = { $ref: '#/components/parameters/OrderParam' }
-        const data = await DataManager.getBooks();
+        const data: Book[] = await DataManager.getBooks();
         let { sortBy, order, hide } = req.query;
 
         if (!Object.values(SortBy).includes(sortBy as SortBy)) {
@@ -42,9 +43,9 @@ router.route('/')
         if (!Object.values(SortOrder).includes(order as SortOrder)) {
             order = SortOrder.ASC;
         }
-        const sortedData = sort(data, sortBy, order);
+        const sortedData: Book[] = sort(data, (sortBy as SortBy), order as SortOrder);
 
-        const hiddenAttributes: string[] | undefined = hide?.split(',').map((f: any) => f.trim());
+        const hiddenAttributes: string[] | undefined = (hide as string)?.split(',').map((f: any) => f.trim());
         if (hiddenAttributes !== undefined) {
             for (const attribute of hiddenAttributes) {
                 sortedData.forEach((book: any) => delete book[attribute]);
@@ -57,7 +58,7 @@ router.route('/')
 router.route('/reset').post(async (req: Request, res: Response) => {
     // #swagger.tags = ['Books']
     let data: any[] = [];
-    const ISBNdata = await DataManager.getISBNs();
+    const ISBNdata: ISBNList = await DataManager.getISBNs();
     for (const isbn of ISBNdata) {
         const response: APIResponse = await addBook(isbn, data);
         if (response.status === 201) {
@@ -98,7 +99,7 @@ router.route('/:isbn')
             return res.status(400).json({error: 'Invalid ISBN'});
         }
 
-        let ISBNdata = await DataManager.getISBNs();
+        let ISBNdata: ISBNList = await DataManager.getISBNs();
         const cleanISBN: string = validISBN.replace(/-/g, '');
 
         const alreadyExists: boolean = ISBNdata.some((i: string) => i.replace(/-/g, '') === cleanISBN);
@@ -125,8 +126,8 @@ router.route('/:isbn')
     })
     .delete(async (req: Request, res: Response) => {
         // #swagger.tags = ['Books']
-        let books = await DataManager.getBooks();
-        let ISBNdata = await DataManager.getISBNs();
+        let books: Book[] = await DataManager.getBooks();
+        let ISBNdata: ISBNList = await DataManager.getISBNs();
 
         const rawISBN = req.params.isbn;
         if (!rawISBN || typeof rawISBN !== 'string') {

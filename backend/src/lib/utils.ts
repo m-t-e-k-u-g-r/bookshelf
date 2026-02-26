@@ -6,14 +6,6 @@ export interface APIResponse {
     error?: string;
 }
 
-export interface Book {
-    isbn: string;
-    title: string;
-    author: string;
-    publish_date: string;
-    imgUrl: string | undefined;
-}
-
 interface GoogleBooksResponse {
     totalItems: number;
     items?: Array<{
