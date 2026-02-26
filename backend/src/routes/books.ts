@@ -17,8 +17,8 @@ enum SortOrder {
 
 const router: Router = express.Router();
 
-function sort(data: Book[], sortBy: SortBy, order: SortOrder): Book[] {
-    return [...data].sort((a: any, b: any) => {
+function sort(books: Book[], sortBy: SortBy, order: SortOrder): Book[] {
+    return [...books].sort((a: any, b: any) => {
         const valA = String(a[sortBy] || '');
         const valB = String(b[sortBy] || '');
         if (order === SortOrder.ASC) {
@@ -34,7 +34,7 @@ router.route('/')
         // #swagger.tags = ['Books']
         // #swagger.parameters['sortBy'] = { $ref: '#/components/parameters/SortByParam' }
         // #swagger.parameters['order'] = { $ref: '#/components/parameters/OrderParam' }
-        const data: Book[] = await DataManager.getBooks();
+        const books: Book[] = await DataManager.getBooks();
         let { sortBy, order, hide } = req.query;
 
         if (!Object.values(SortBy).includes(sortBy as SortBy)) {
@@ -43,7 +43,7 @@ router.route('/')
         if (!Object.values(SortOrder).includes(order as SortOrder)) {
             order = SortOrder.ASC;
         }
-        const sortedData: Book[] = sort(data, (sortBy as SortBy), order as SortOrder);
+        const sortedData: Book[] = sort(books, (sortBy as SortBy), order as SortOrder);
 
         const hiddenAttributes: string[] | undefined = (hide as string)?.split(',').map((f: any) => f.trim());
         if (hiddenAttributes !== undefined) {
@@ -57,19 +57,19 @@ router.route('/')
 
 router.route('/reset').post(async (req: Request, res: Response) => {
     // #swagger.tags = ['Books']
-    let data: any[] = [];
+    let books: Book[] = [];
     const ISBNdata: ISBNList = await DataManager.getISBNs();
     for (const isbn of ISBNdata) {
-        const response: APIResponse = await addBook(isbn, data);
+        const response: APIResponse = await addBook(isbn, books);
         if (response.status === 201) {
             const book: Book = response.data;
-            if (book) data = [...data, book];
+            if (book) books = [...books, book];
         } else {
             console.log(response);
         }
     }
-    await DataManager.saveBooks(data);
-    const bookCount: number = data.length;
+    await DataManager.saveBooks(books);
+    const bookCount: number = books.length;
     res.status(200).send(`${bookCount} books synchronized.`);
 });
 
@@ -81,8 +81,8 @@ router.route('/:isbn')
         if (typeof rawISBN !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
         const isbn: string = cleanIsbn(rawISBN);
 
-        const data: Book[] = await DataManager.getBooks();
-        const book: Book | undefined = data.find((b: any) => cleanIsbn(b.isbn) === isbn);
+        const books: Book[] = await DataManager.getBooks();
+        const book: Book | undefined = books.find((b: any) => cleanIsbn(b.isbn) === isbn);
         if (book == undefined) return res.status(404).json({error: 'Book not found'});
 
         res.status(200).send(book);
