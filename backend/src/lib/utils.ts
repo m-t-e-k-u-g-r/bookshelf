@@ -1,4 +1,5 @@
 import ISBN from 'isbn3';
+import type { Book } from "./dataManager.js";
 
 export interface APIResponse {
     status: number;
@@ -9,14 +10,16 @@ export interface APIResponse {
 interface GoogleBooksResponse {
     totalItems: number;
     items?: Array<{
-        volumeInfo: {
-            title: string;
-            authors?: string[];
-            publishedDate: string;
-            industryIdentifiers: Array<{type: string, identifier: string}>;
-            imageLinks?: {thumbnail: string};
-        };
+        volumeInfo: volumeInfo;
     }>
+}
+
+interface volumeInfo {
+    title: string;
+    authors?: string[];
+    publishedDate: string;
+    industryIdentifiers: Array<{type: string, identifier: string}>;
+    imageLinks?: {thumbnail: string};
 }
 
 function isGoogleBooksResponse(value: unknown): value is GoogleBooksResponse {
@@ -44,8 +47,8 @@ export function cleanIsbn(isbn: string): string {
     return isbn.replace(/-/g, '');
 }
 
-export async function addBook(isbn: string, data: any): Promise<APIResponse> {
-    const entry = data.find((e: any) => e.isbn == isbn);
+export async function addBook(isbn: string, books: Book[]): Promise<APIResponse> {
+    const entry: Book | undefined = books.find((e: any) => e.isbn == isbn);
     const response: APIResponse = await getBook(isbn);
     if (!entry) {
         return { status: 201, data: response.data };
@@ -77,7 +80,7 @@ export async function getBook(isbn: string): Promise<APIResponse> {
         }
 
         // @ts-ignore
-        const info = result.items![0].volumeInfo;
+        const info: volumeInfo = result.items![0].volumeInfo;
         const rawDate: string = info.publishedDate;
         const yearOnly: string = rawDate ? rawDate.substring(0, 4) : 'Unknown';
         const imgUrl: string = info.imageLinks?.thumbnail || 'https://placehold.co/400x640';
