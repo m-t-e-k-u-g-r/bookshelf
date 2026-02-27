@@ -23,8 +23,9 @@ let hasChanges: boolean = false;
 const PORT: string = process.env.PORT || '5500';
 const app: Express = express();
 
+const allowedOrigins: string[] = process.env.CORS_ORIGIN?.split(',') || [];
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: allowedOrigins.length > 0 ? allowedOrigins : '*',
 }));
 app.use(express.json());
 
