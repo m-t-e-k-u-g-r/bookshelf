@@ -34,7 +34,7 @@ export enum SortOrder {
 }
 
 export function sort(books: Book[], sortBy: SortBy, order: SortOrder): Book[] {
-    return [...books].sort((a: any, b: any) => {
+    return [...books].sort((a: Book, b: Book) => {
         const valA = String(a[sortBy] || '');
         const valB = String(b[sortBy] || '');
         if (order === SortOrder.ASC) {
@@ -45,13 +45,11 @@ export function sort(books: Book[], sortBy: SortBy, order: SortOrder): Book[] {
     });
 }
 
-function isGoogleBooksResponse(value: unknown): value is GoogleBooksResponse {
+function isGoogleBooksResponse(value: GoogleBooksResponse): boolean {
     if (typeof value !== "object" || value === null) return false;
     if (!("totalItems" in value)) return false;
 
-    const v = value as any;
-
-    if (typeof v.totalItems !== "number") return false;
+    const v = value as GoogleBooksResponse;
 
     if (v.totalItems > 0 && !Array.isArray(v.items)) return false;
 
@@ -71,7 +69,7 @@ export function cleanIsbn(isbn: string): string {
 }
 
 export async function addBook(isbn: string, books: Book[]): Promise<APIResponse> {
-    const entry: Book | undefined = books.find((e: any) => e.isbn == isbn);
+    const entry: Book | undefined = books.find((e: Book) => e.isbn == isbn);
     const response: APIResponse = await getBook(isbn);
     if (!entry) {
         return { status: 201, data: response.data };
@@ -92,7 +90,7 @@ export async function getBook(isbn: string): Promise<APIResponse> {
         if (!response.ok) {
             return { status: 502, error: 'Error during API-Request'}
         }
-        const result: unknown = await response.json();
+        const result: GoogleBooksResponse = JSON.parse(await response.text());
 
         if (!isGoogleBooksResponse(result)) {
             return { status: 502, error: 'Invalid response from API'}

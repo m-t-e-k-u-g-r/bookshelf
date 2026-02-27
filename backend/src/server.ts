@@ -39,7 +39,7 @@ app.listen(PORT,
 );
 
 for (const isbn of ISBNdata) {
-    if (books.find((b: any) => b.isbn === isbn)) continue;
+    if (books.find((b: Book) => b.isbn === isbn)) continue;
 
     const response: APIResponse = await addBook(isbn, books);
     if (response.status !== 201 && response.data) {

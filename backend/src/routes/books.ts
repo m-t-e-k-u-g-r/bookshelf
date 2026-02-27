@@ -23,10 +23,12 @@ router.route('/')
         }
         const sortedData: Book[] = sort(books, (sortBy as SortBy), order as SortOrder);
 
-        const hiddenAttributes: string[] | undefined = (hide as string)?.split(',').map((f: any) => f.trim());
+        const hiddenAttributes: string[] | undefined = (hide as string)?.split(',').map((f: string) => f.trim());
         if (hiddenAttributes !== undefined) {
-            for (const attribute of hiddenAttributes) {
-                sortedData.forEach((book: any) => delete book[attribute]);
+            for (const attribute of hiddenAttributes as (keyof Book)[]) {
+                sortedData.forEach((book: Book) => {
+                    delete book[attribute]
+                });
             }
         }
 
@@ -53,15 +55,15 @@ router.route('/:isbn')
         const isbn: string = cleanIsbn(rawISBN);
 
         const books: Book[] = await DataManager.getBooks();
-        const book: Book | undefined = books.find((b: any) => cleanIsbn(b.isbn) === isbn);
+        const book: Book | undefined = books.find((b: Book) => cleanIsbn(b.isbn) === isbn);
         if (book == undefined) return res.status(404).json({error: 'Book not found'});
 
         res.status(200).send(book);
     })
     .post(async (req: Request, res: Response) => {
         // #swagger.tags = ['Books']
-        const rawISBN = req.params.isbn;
-        if (!rawISBN || typeof rawISBN !== 'string') {
+        const rawISBN = req.params.isbn as string;
+        if (!rawISBN) {
             return res.status(400).json({error: 'Invalid ISBN'});
         }
 
@@ -116,7 +118,7 @@ router.route('/:isbn')
         }
 
         const initialLength: number = books.length;
-        books = books.filter((book: any) => cleanIsbn(book.isbn) !== isbn);
+        books = books.filter((book: Book) => cleanIsbn(book.isbn) !== isbn);
 
         if (books.length < initialLength) {
             await DataManager.saveBooks(books);
