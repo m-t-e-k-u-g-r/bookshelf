@@ -22,6 +22,29 @@ interface volumeInfo {
     imageLinks?: {thumbnail: string};
 }
 
+export enum SortBy {
+    TITLE = 'title',
+    AUTHOR = 'author',
+    ISBN = 'isbn',
+    PUBLISH_DATE = 'publish_date'
+}
+export enum SortOrder {
+    ASC = 'asc',
+    DESC = 'desc'
+}
+
+export function sort(books: Book[], sortBy: SortBy, order: SortOrder): Book[] {
+    return [...books].sort((a: any, b: any) => {
+        const valA = String(a[sortBy] || '');
+        const valB = String(b[sortBy] || '');
+        if (order === SortOrder.ASC) {
+            return valA.localeCompare(valB);
+        } else {
+            return valB.localeCompare(valA);
+        }
+    });
+}
+
 function isGoogleBooksResponse(value: unknown): value is GoogleBooksResponse {
     if (typeof value !== "object" || value === null) return false;
     if (!("totalItems" in value)) return false;

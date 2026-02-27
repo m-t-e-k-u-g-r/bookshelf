@@ -1,33 +1,11 @@
 import express from 'express';
 import { type Request, type Response, type Router } from 'express';
-import { type APIResponse, cleanIsbn, formatISBN, getBook} from '../lib/utils.js';
+import { type APIResponse, cleanIsbn, formatISBN, getBook, sort, SortBy, SortOrder} from '../lib/utils.js';
 import {type Book, type ISBNList, type Shelves} from '../lib/dataManager.js';
 import {DataManager} from "../lib/dataManager.js";
 
-enum SortBy {
-    TITLE = 'title',
-    AUTHOR = 'author',
-    ISBN = 'isbn',
-    PUBLISH_DATE = 'publish_date'
-}
-enum SortOrder {
-    ASC = 'asc',
-    DESC = 'desc'
-}
 
 const router: Router = express.Router();
-
-function sort(books: Book[], sortBy: SortBy, order: SortOrder): Book[] {
-    return [...books].sort((a: any, b: any) => {
-        const valA = String(a[sortBy] || '');
-        const valB = String(b[sortBy] || '');
-        if (order === SortOrder.ASC) {
-            return valA.localeCompare(valB);
-        } else {
-            return valB.localeCompare(valA);
-        }
-    });
-}
 
 router.route('/')
     .get(async (req: Request, res: Response) => {
