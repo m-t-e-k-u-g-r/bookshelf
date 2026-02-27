@@ -21,33 +21,42 @@ export interface Shelves {
 export type ISBNList = string[];
 
 export class DataManager {
+    private static async readJsonFile<T>(filePath: string, fallback: T): Promise<T> {
+        try {
+            const data: string = await fs.readFile(filePath, 'utf-8');
+            return JSON.parse(data) as T;
+        } catch (e) {
+            console.error('Failed to read JSON file:', e);
+            return fallback;
+        }
+    }
+
     static async getISBNs(): Promise<ISBNList> {
-        const data: string = await fs.readFile(ISBN_FILE, 'utf-8');
-        return JSON.parse(data);
+        return this.readJsonFile(ISBN_FILE, []);
     }
 
     static async getBooks(): Promise<Book[]> {
-        const data: string = await fs.readFile(BOOKS_FILE, 'utf-8');
-        return JSON.parse(data);
+        return this.readJsonFile(BOOKS_FILE, []);
     }
 
     static async getShelves(): Promise<Shelves> {
-        const data: string = await fs.readFile(SHELVES_FILE, 'utf-8');
-        return JSON.parse(data);
+        return this.readJsonFile(SHELVES_FILE, {});
     }
 
-    static async saveISBN(content: any) {
+    private static async saveJsonFile<T>(filePath: string, content: T): Promise<void> {
         const file_data: string = JSON.stringify(content, null, 2);
-        await fs.writeFile(ISBN_FILE, file_data);
+        await fs.writeFile(filePath, file_data);
     }
 
-    static async saveBooks(content: any) {
-        const file_data: string = JSON.stringify(content, null, 2);
-        await fs.writeFile(BOOKS_FILE, file_data);
+    static async saveISBN(content: ISBNList): Promise<void> {
+        await this.saveJsonFile(ISBN_FILE, content);
     }
 
-    static async saveShelves(content: any) {
-        const file_data: string = JSON.stringify(content, null, 2);
-        await fs.writeFile(SHELVES_FILE, file_data);
+    static async saveBooks(content: Book[]): Promise<void> {
+        await this.saveJsonFile(BOOKS_FILE, content);
+    }
+
+    static async saveShelves(content: Shelves): Promise<void> {
+        await this.saveJsonFile(SHELVES_FILE, content);
     }
 }
