@@ -1,5 +1,6 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import {addBook, type APIResponse} from "./utils.js";
 
 const DATA_DIR: string = path.join(process.cwd(), 'data');
 const BOOKS_FILE: string = path.join(DATA_DIR, 'books.json');
@@ -21,6 +22,19 @@ export interface Shelves {
 export type ISBNList = string[];
 
 export class DataManager {
+    static async syncBooksWithAPI(): Promise<number> {
+        const ISBNdata: ISBNList = await DataManager.getISBNs();
+        let books: Book[] = [];
+        for (const isbn of ISBNdata) {
+            const response: APIResponse = await addBook(isbn, books);
+            if (response.status === 201 && response.data) {
+                books = [...books, response.data];
+            }
+        }
+        await DataManager.saveBooks(books);
+        return books.length;
+    }
+
     private static async readJsonFile<T>(filePath: string, fallback: T): Promise<T> {
         try {
             const data: string = await fs.readFile(filePath, 'utf-8');

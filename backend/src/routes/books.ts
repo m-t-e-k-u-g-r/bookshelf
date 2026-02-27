@@ -1,6 +1,6 @@
 import express from 'express';
 import { type Request, type Response, type Router } from 'express';
-import {addBook, type APIResponse, cleanIsbn, formatISBN, getBook} from '../lib/utils.js';
+import { type APIResponse, cleanIsbn, formatISBN, getBook} from '../lib/utils.js';
 import {type Book, type ISBNList, type Shelves} from '../lib/dataManager.js';
 import {DataManager} from "../lib/dataManager.js";
 
@@ -57,20 +57,13 @@ router.route('/')
 
 router.route('/reset').post(async (req: Request, res: Response) => {
     // #swagger.tags = ['Books']
-    let books: Book[] = [];
-    const ISBNdata: ISBNList = await DataManager.getISBNs();
-    for (const isbn of ISBNdata) {
-        const response: APIResponse = await addBook(isbn, books);
-        if (response.status === 201) {
-            const book: Book = response.data;
-            if (book) books = [...books, book];
-        } else {
-            console.log(response);
-        }
+    try {
+        const bookCount: number = await DataManager.syncBooksWithAPI();
+        return res.status(200).send(`${bookCount} books synchronized.`);
+    } catch (e) {
+        console.error('Error while synchronizing books:', e);
+        return res.status(500).json({ error: 'Synchronization failed' });
     }
-    await DataManager.saveBooks(books);
-    const bookCount: number = books.length;
-    res.status(200).send(`${bookCount} books synchronized.`);
 });
 
 router.route('/:isbn')
