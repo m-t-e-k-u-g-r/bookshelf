@@ -1,3 +1,7 @@
+import {handleBookDelete, type menuItem} from "../dataHandler";
+import {useState} from "react";
+import { KebabMenu } from "./KebabMenu";
+
 export interface BookProps {
     title: string;
     author: string;
@@ -7,9 +11,17 @@ export interface BookProps {
 }
 
 export default function Book({ title, author, publish_date, isbn, imgUrl }: BookProps) {
+    const [isDeleted, setIsDeleted] = useState(false);
+
+    const menuItems: menuItem[] = [
+        {label: 'Delete', onClick: () => {
+            handleBookDelete(title, isbn)
+                setIsDeleted(true);
+        }}
+    ];
 
     return (
-        <div className={'book'}>
+        <div className={isDeleted ? 'book deleted': 'book'}>
             <img src={imgUrl} alt={`${title} by ${author}`}/>
             <div className={'book_content'}
                 id={title.toLowerCase()
@@ -21,6 +33,9 @@ export default function Book({ title, author, publish_date, isbn, imgUrl }: Book
                     <p className={'publishDate'}>Year: {publish_date}</p>
                     <p className={'isbn'}>{isbn}</p>
                 </div>
+                <KebabMenu
+                    items={menuItems}
+                />
             </div>
         </div>
     );
