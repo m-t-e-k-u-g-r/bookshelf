@@ -16,6 +16,7 @@ root.render(
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<App />}/>
+                <Route path="/s/:shelfId" element={<App />}/>
             </Routes>
         </BrowserRouter>
     </StrictMode>
