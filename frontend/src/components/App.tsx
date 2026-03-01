@@ -56,7 +56,7 @@ export default function App() {
     return (
         <>
             <Nav/>
-            <ToastContainer/>
+            <ToastContainer toastClassName="toast"/>
             <Link to={'/'} id={'title'}>
                 <h1>Bookshelf</h1>
             </Link>
