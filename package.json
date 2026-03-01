@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "backend"
+    "backend",
+    "frontend"
   ],
   "scripts": {
     "backend:dev": "npm run dev --workspace=backend",
-    "backend:build": "npm run build --workspace=backend"
+    "backend:build": "npm run build --workspace=backend",
+    "frontend:dev": "npm run dev --workspace=frontend",
+    "frontend:build": "npm run build --workspace=frontend",
+    "build": "npm run build --workspaces",
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\""
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
