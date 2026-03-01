@@ -6,6 +6,11 @@ export function cleanIsbn(isbn: string) {
     return isbn.replace(/-/g, '');
 }
 
+export interface menuItem {
+    label: string;
+    onClick: () => void;
+}
+
 export async function getBooks(): Promise<Object[]> {
     try {
         const response: Response = await fetch(BOOKS_API_URL);

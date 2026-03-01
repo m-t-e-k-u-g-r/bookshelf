@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import { Link } from 'react-router-dom';
-import {createShelf} from '../dataHandler';
+import {createShelf, deleteShelf, type menuItem} from '../dataHandler';
+import {KebabMenu} from "./KebabMenu";
 
 export default function Sidebar({ shelfData }: { shelfData: Record<string, string[]> }) {
     const [isOpen, setIsOpen] = useState(true);
@@ -10,6 +11,12 @@ export default function Sidebar({ shelfData }: { shelfData: Record<string, strin
         const shelfName: string | null = window.prompt('Enter name of new shelf:');
         if (shelfName === null) return;
         createShelf(shelfName);
+    }
+
+    function handleDeleteShelf(shelfName: string): void {
+        const confirmed: boolean = window.confirm('Delete shelf?');
+        if (!confirmed) return;
+        deleteShelf(shelfName);
     }
 
     return (
@@ -23,14 +30,22 @@ export default function Sidebar({ shelfData }: { shelfData: Record<string, strin
                 </button>
                 {isOpen && (
                     <div className={'accordion_body'}>
-                        {shelfNames.map((sN: string) => (
-                            <Link key={sN} title={sN} to={`/s/${sN}`} className={'shelf_entry'}>
-                                <span className={'shelf_wrapper'}>
-                                    <p className={'shelf_name'}>{sN}</p>
-                                    <p className={'count'}>{shelfData[sN] !== undefined ? shelfData[sN].length : 0}</p>
-                                </span>
-                            </Link>
-                        ))}
+                        {shelfNames.map((sN: string) => {
+                            const menuItems: menuItem[] = [
+                                { label: 'Delete', onClick: () => handleDeleteShelf(sN) }
+                            ];
+                            return (
+                                <Link key={sN} title={sN} to={`/s/${sN}`} className={'shelf_entry'}>
+                                    <span className={'shelf_wrapper'}>
+                                        <p className={'shelf_name'}>{sN}</p>
+                                        <p className={'count'}>{shelfData[sN] !== undefined ? shelfData[sN].length : 0}</p>
+                                        <div className={'shelf-menu'}>
+                                            <KebabMenu items={menuItems} />
+                                        </div>
+                                    </span>
+                                </Link>
+                            );
+                        })}
                         <button
                             onClick={handleCreateShelf}
                             className={'create_shelf_button'}
