@@ -5,9 +5,7 @@ import {Link, useParams} from "react-router-dom";
 import type { BookProps } from "./Book";
 import Sidebar from "./Sidebar";
 import Nav from "./Nav";
-import type {ToastMessage} from "./ToastContainer";
-import { ToastContext } from "../context/ToastContext";
-import {ToastContainer} from "react-bootstrap";
+import { ToastContainer } from "react-toastify";
 
 export default function App() {
     type SortKey = 'title' | 'author' | 'isbn' | 'publish_date';
@@ -16,15 +14,6 @@ export default function App() {
     const [sortBy, setSortBy] = useState<SortKey>('title');
     const [shelves, setShelves] = useState<Record<string, string[]>>({});
     const { shelfId } = useParams<{ shelfId: string }>();
-    const [toasts, setToasts] = useState<ToastMessage[]>([]);
-
-    const addToast = (message: string) => {
-        const id: number = Date.now();
-        setToasts(prev => [...prev, {id, message}]);
-        setTimeout(() => {
-            setToasts(prev => prev.filter(t => t.id !== id))
-        }, 3000);
-    };
 
     const handleSortChange = (newValue: string) => {
         setSortBy(newValue);
@@ -65,7 +54,7 @@ export default function App() {
     }, [filteredBooks, sortBy]);
 
     return (
-        <ToastContext.Provider value={{ toasts, addToast}}>
+        <>
             <Nav/>
             <ToastContainer/>
             <Link to={'/'} id={'title'}>
@@ -89,6 +78,6 @@ export default function App() {
                     )}
                 </div>
             </div>
-        </ToastContext.Provider>
+        </>
     );
 }
