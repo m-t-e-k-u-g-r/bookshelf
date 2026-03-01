@@ -1,4 +1,5 @@
 import {toast} from "react-toastify";
+import type { BookProps } from "./components/Book";
 
 export const API_URL = 'http://localhost:5500';
 export const BOOKS_API_URL = `${API_URL}/books/`;
@@ -13,11 +14,12 @@ export function cleanIsbn(isbn: string) {
     return isbn.replace(/-/g, '');
 }
 
-export async function getBooks(): Promise<Object[]> {
+export async function getBooks(): Promise<BookProps[]> {
     try {
         const response: Response = await fetch(BOOKS_API_URL);
         return await response.json();
     } catch (e) {
+        console.error('Error while fetching books:', e);
         toast.error('Error while fetching books.');
         return [];
     }
