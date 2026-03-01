@@ -1,3 +1,4 @@
+import App from './components/App.js';
 import { StrictMode } from 'react';
 import {createRoot, type Root} from 'react-dom/client';
 
@@ -14,6 +15,7 @@ root.render(
     <StrictMode>
         <BrowserRouter>
             <Routes>
+                <Route path="/" element={<App />}/>
             </Routes>
         </BrowserRouter>
     </StrictMode>
