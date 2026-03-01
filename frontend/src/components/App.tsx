@@ -69,7 +69,7 @@ export default function App() {
                         <p>Load books...</p>
                     ) : (
                         <Shelf
-                            shelfId={"Books"}
+                            shelfId={shelfId || "Books"}
                             books={sortedBooks}
                             onSortChange={handleSortChange}
                         />
