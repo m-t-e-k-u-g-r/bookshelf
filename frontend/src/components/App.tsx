@@ -4,6 +4,7 @@ import {BOOKS_API_URL, cleanIsbn, getShelves} from '../dataHandler';
 import {Link, useParams} from "react-router-dom";
 import type { BookProps } from "./Book";
 import Sidebar from "./Sidebar";
+import Nav from "./Nav";
 
 export default function App() {
     type SortKey = 'title' | 'author' | 'isbn' | 'publish_date';
@@ -53,6 +54,7 @@ export default function App() {
 
     return (
         <>
+            <Nav/>
             <Link to={'/'} id={'title'}>
                 <h1>Bookshelf</h1>
             </Link>
