@@ -1,12 +1,18 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import Shelf from './Shelf';
 import {BOOKS_API_URL, getShelves} from '../dataHandler';
 import {Link} from "react-router-dom";
 import type { BookProps } from "./Book";
 
 export default function App() {
+    type SortKey = 'title' | 'author' | 'isbn' | 'publish_date';
     const [books, setBooks] = useState<BookProps[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [sortBy, setSortBy] = useState<SortKey>('title');
+
+    const handleSortChange = (newValue: string) => {
+        setSortBy(newValue);
+    }
 
     const fetchData = async () => {
         const [booksRes] = await Promise.all([
@@ -22,6 +28,14 @@ export default function App() {
         fetchData();
     }, []);
 
+    const sortedBooks: BookProps[] = useMemo(() => {
+        return [...books].sort((a, b) => {
+            const valA: string = a[sortBy]?.toString().toLowerCase() || '';
+            const valB: string = b[sortBy]?.toString().toLowerCase() || '';
+            return valA.localeCompare(valB);
+        });
+    }, [books, sortBy]);
+
     return (
         <>
             <Link to={'/'} id={'title'}>
@@ -34,7 +48,8 @@ export default function App() {
                     ) : (
                         <Shelf
                             shelfId={"Books"}
-                            books={books}
+                            books={sortedBooks}
+                            onSortChange={handleSortChange}
                         />
                     )}
                 </div>
