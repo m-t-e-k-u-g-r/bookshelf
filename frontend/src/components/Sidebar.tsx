@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import { Link } from 'react-router-dom';
-import {createShelf, deleteShelf, type menuItem} from '../dataHandler';
+import {createShelf, deleteShelf, type menuItem, renameShelf} from '../dataHandler';
 import {KebabMenu} from "./KebabMenu";
 
 export default function Sidebar({ shelfData }: { shelfData: Record<string, string[]> }) {
@@ -11,6 +11,12 @@ export default function Sidebar({ shelfData }: { shelfData: Record<string, strin
         const shelfName: string | null = window.prompt('Enter name of new shelf:');
         if (shelfName === null) return;
         createShelf(shelfName);
+    }
+
+    function handleRenameShelf(oldShelfName: string): void {
+        const newShelfName: string | null = window.prompt('Enter new name of shelf:');
+        if (newShelfName === null) return alert('No shelf name entered.');
+        renameShelf(oldShelfName, newShelfName);
     }
 
     function handleDeleteShelf(shelfName: string): void {
@@ -32,7 +38,8 @@ export default function Sidebar({ shelfData }: { shelfData: Record<string, strin
                     <div className={'accordion_body'}>
                         {shelfNames.map((sN: string) => {
                             const menuItems: menuItem[] = [
-                                { label: 'Delete', onClick: () => handleDeleteShelf(sN) }
+                                { label: 'Delete', onClick: () => handleDeleteShelf(sN) },
+                                { label: 'Rename', onClick: () => handleRenameShelf(sN) }
                             ];
                             return (
                                 <Link key={sN} title={sN} to={`/s/${sN}`} className={'shelf_entry'}>
