@@ -64,4 +64,40 @@ export class DbDataManager {
             throw e;
         }
     }
+    static async getShelvesWithBooks() {
+        try {
+            return await pool.query(`SELECT * FROM books_in_shelves`);
+        } catch (e) {
+            throw e;
+        }
+    }
+    static async getShelfStats() {
+        try {
+            return await pool.query(`SELECT * FROM shelf_statistics`);
+        } catch (e) {
+            throw e;
+        }
+    }
+    static async addShelf(shelfName: string) {
+        try {
+            return await pool.query(`
+                INSERT INTO shelves (name) 
+                VALUES (?)
+                `, [shelfName]
+            );
+        } catch (e) {
+            throw e;
+        }
+    }
+    static async deleteShelf(shelfName: string) {
+        try {
+            return await pool.query(`
+                DELETE FROM shelves 
+                WHERE name = ?
+                `, [shelfName]
+            )
+        } catch (e) {
+            throw e;
+        }
+    }
 }
