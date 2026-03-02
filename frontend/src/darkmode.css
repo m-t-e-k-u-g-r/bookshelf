@@ -1,0 +1,26 @@
+@media (prefers-color-scheme: dark) {
+    :root {
+        --border-color: rgb(100, 100, 100);
+        --bg-color: #1c1c1c;
+        --text-color: #eaeaea;
+        --secondary-bg-color: #131313;
+        --nav-bg-color: #222;
+        --nav-text-color: #ffffff;
+        --sidebar-bg-color: #2a2a2a;
+        --accordion-header-bg: #2a2a2a;
+        --accordion-body-bg: #2a2a2a;
+        --shelf-entry-hover: #3a3a3a;
+        --shelf-entry-border: #444;
+        --button-bg: #121212;
+        --button-text: #ffffff;
+        --toast-bg: #131313;
+        --toast-text: #b5b5b5;
+        --kebab-menu-bg: #1f1f1f;
+        --kebab-menu-border: #333;
+        --kebab-menu-shadow: rgba(0,0,0,0.6);
+        --kebab-menu-hover: #333;
+        --kebab-button-color: #ffffff;
+        --dialog-bg: #2a2a2a;
+        --select-bg: #222;
+    }
+}
