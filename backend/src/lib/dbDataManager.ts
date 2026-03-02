@@ -50,4 +50,18 @@ export class DbDataManager {
             throw e;
         }
     }
+    static async getISBNs() {
+        try {
+            return await pool.query(`SELECT isbn FROM books`);
+        } catch (e) {
+            throw e;
+        }
+    }
+    static async getFormatedISBNs() {
+        try {
+            return await pool.query(`SELECT isbn_h FROM books`);
+        } catch (e) {
+            throw e;
+        }
+    }
 }
