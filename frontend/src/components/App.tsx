@@ -15,7 +15,7 @@ export default function App() {
     const [shelves, setShelves] = useState<Record<string, string[]>>({});
     const { shelfId } = useParams<{ shelfId: string }>();
 
-    const handleSortChange = (newValue: string) => {
+    const handleSortChange = (newValue: SortKey) => {
         setSortBy(newValue);
     }
 
