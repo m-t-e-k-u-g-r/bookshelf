@@ -1,4 +1,5 @@
-CREATE DATABASE IF NOT EXISTS `bookshelf`;
+DROP DATABASE IF EXISTS `bookshelf`;
+CREATE DATABASE `bookshelf`;
 USE `bookshelf`;
 
 CREATE TABLE `books` (
@@ -23,3 +24,18 @@ CREATE TABLE `shelves_books` (
     FOREIGN KEY (shelf_id) REFERENCES shelves(id),
     FOREIGN KEY (book_isbn) REFERENCES books(isbn)
 );
+
+CREATE VIEW `isbns_in_shelves` AS
+    SELECT s.name, b.isbn FROM shelves s, shelves_books sb, books b
+    WHERE s.id = sb.shelf_id AND b.isbn = sb.book_isbn;
+
+CREATE VIEW `books_in_shelves` AS
+    SELECT iis.name AS shelf, b.*
+    FROM isbns_in_shelves iis, books b
+    WHERE b.isbn = iis.isbn;
+
+CREATE VIEW `shelf_statistics` AS
+    SELECT s.id, s.name, COUNT(b.isbn) AS books_count
+    FROM shelves s, shelves_books sb, books b
+    WHERE s.id = sb.shelf_id AND b.isbn = sb.book_isbn
+    GROUP BY s.name;
