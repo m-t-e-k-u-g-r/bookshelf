@@ -21,6 +21,8 @@
         --kebab-menu-hover: #333;
         --kebab-button-color: #ffffff;
         --dialog-bg: #2a2a2a;
+        --textarea-color: #eaeaea;
+        --textarea-bg-color: #2a2a2a;
         --select-bg: #222;
     }
 }
