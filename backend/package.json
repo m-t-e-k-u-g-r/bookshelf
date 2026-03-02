@@ -17,6 +17,7 @@
     "express": "^5.2.1",
     "isbn3": "^2.0.5",
     "jsonwebtoken": "^9.0.3",
+    "mariadb": "^3.5.1",
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1"
   },
