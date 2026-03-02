@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from 'react';
 import Shelf from './Shelf';
-import {BOOKS_API_URL, cleanIsbn, getShelves} from '../dataHandler';
+import {getBooks, cleanIsbn, getShelves} from '../dataHandler';
 import {Link, useParams} from "react-router-dom";
 import type { BookProps } from "./Book";
 import Sidebar from "./Sidebar";
@@ -20,12 +20,11 @@ export default function App() {
     }
 
     const fetchData = async () => {
-        const [booksRes, shelvesRes] = await Promise.all([
-            fetch(BOOKS_API_URL),
+        const [booksRes, shelvesRes]: [BookProps[], Record<string, string[]>] = await Promise.all([
+            getBooks(),
             getShelves()
         ]);
-        const booksData: BookProps[] = await booksRes.json();
-        setBooks(booksData);
+        setBooks(booksRes);
         setShelves(shelvesRes);
         setIsLoading(false);
     };
