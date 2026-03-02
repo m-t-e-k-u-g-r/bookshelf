@@ -39,6 +39,25 @@ const doc: object = {
                     enum: ["asc", "desc"],
                     default: "asc"
                 }
+            },
+            ISBNParam: {
+                name: "isbn",
+                in: "body",
+                required: true,
+                description: "ISBNs of added books",
+                schema: {
+                    type: "array",
+                    items: {
+                        type: "string"
+                    },
+                    example: {
+                        isbns: [
+                            "9780140449136",
+                            "9783038580171",
+                            "9780486821955"
+                        ]
+                    }
+                }
             }
         }
     }
