@@ -21,8 +21,8 @@ CREATE TABLE `shelves_books` (
     shelf_id INT,
     book_isbn VARCHAR(13),
     PRIMARY KEY (shelf_id, book_isbn),
-    FOREIGN KEY (shelf_id) REFERENCES shelves(id),
-    FOREIGN KEY (book_isbn) REFERENCES books(isbn)
+    FOREIGN KEY (shelf_id) REFERENCES shelves(id) ON DELETE CASCADE,
+    FOREIGN KEY (book_isbn) REFERENCES books(isbn) ON DELETE CASCADE
 );
 
 CREATE VIEW `isbns_in_shelves` AS
