@@ -7,8 +7,8 @@ import Sidebar from "./Sidebar";
 import Nav from "./Nav";
 import { ToastContainer } from "react-toastify";
 
+export type SortKey = 'title' | 'author' | 'isbn' | 'publish_date';
 export default function App() {
-    type SortKey = 'title' | 'author' | 'isbn' | 'publish_date';
     const [books, setBooks] = useState<BookProps[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [sortBy, setSortBy] = useState<SortKey>('title');

@@ -1,9 +1,10 @@
 import Book, {type BookProps} from './Book';
+import type {SortKey} from "./App";
 
 interface ShelfProps {
     shelfId: string;
     books: BookProps[];
-    onSortChange: (value: string) => void;
+    onSortChange: (value: SortKey) => void;
 }
 
 export default function Shelf({ shelfId, books, onSortChange }: ShelfProps) {
@@ -12,7 +13,7 @@ export default function Shelf({ shelfId, books, onSortChange }: ShelfProps) {
         <>
             <h2>{shelfId}</h2>
             <div className={'menu'}>
-                <select id={'sort'} className={'select'} onChange={(e) => onSortChange(e.target.value)}>
+                <select id={'sort'} className={'select'} onChange={(e) => onSortChange(e.target.value as SortKey)}>
                     <option value={'title'}>Title</option>
                     <option value={'author'}>Author</option>
                     <option value={'isbn'}>ISBN</option>
