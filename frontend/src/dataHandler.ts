@@ -98,7 +98,7 @@ export async function getShelves(): Promise<Record<string, string[]>> {
 }
 
 export async function editShelvesOfBook(isbn: string, shelves: string[]) {
-    const promise = fetch(SHELF_API_URL, {
+    fetch(SHELF_API_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -112,12 +112,6 @@ export async function editShelvesOfBook(isbn: string, shelves: string[]) {
             throw new Error(await res.text());
         }
         return res;
-    });
-
-    toast.promise(promise, {
-        pending: `Updating shelves for book '${isbn}'...`,
-        success: `Shelves for book '${isbn}' updated.`,
-        error: `Error while editing shelves of book '${isbn}'`
     });
 }
 
