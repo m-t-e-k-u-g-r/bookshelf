@@ -35,6 +35,72 @@ router.route('/')
         res.status(200).send(sortedData);
     });
 
+router.route('/batch').post(async (req: Request, res: Response) => {
+    /*
+    * #swagger.tags = ['Books']
+    * #swagger.parameters['isbns'] = { $ref: '#/components/parameters/ISBNParam' }
+    * #swagger.requestBody = {
+    *   required: true,
+    *   content: {
+    *       "application/json": {
+    *           schema: {
+    *               type: "object",
+    *               properties: {
+    *                   isbns: {
+ *                          type: "array",
+ *                          items: { type: "string" }
+ *                      }
+    *               },
+    *               example: {
+ *                      isbns: [
+ *                          "9780140449136",
+ *                          "9783038580171",
+ *                          "9780486821955"
+ *                      ]
+ *                  }
+    *           }
+    *       }
+    *   }
+    * }
+    * */
+    const isbnData: ISBNList = await DataManager.getISBNs();
+    const bookData: Book[] = await DataManager.getBooks();
+    const isbns: string[] = Array.from(new Set(req.body.isbns));
+    let added: number = 0;
+    let invalid: number = 0;
+    let addedIsbns: string[] = [];
+    for (const isbn of isbns) {
+        const validISBN: string = cleanIsbn(formatISBN(isbn) || '');
+        if (validISBN == '' || isbnData.includes(validISBN)) {
+            invalid ++;
+            continue;
+        }
+        addedIsbns.push(validISBN);
+    }
+
+    let addedBooks: Book[] = [];
+
+    for (const isbn of addedIsbns) {
+        const response: APIResponse = await getBook(isbn);
+        if (response.status !== 200) {
+            invalid ++;
+            continue;
+        }
+        const entry: Book = response.data;
+        addedBooks.push(entry);
+        added ++;
+    }
+    const isbnsToAdd: ISBNList = [...isbnData, ...addedIsbns];
+    const booksToAdd: Book[] = [...bookData, ...addedBooks];
+
+    await DataManager.saveISBN(isbnsToAdd);
+    await DataManager.saveBooks(booksToAdd);
+
+    return res.status(201).json({
+        message: `Added ${added} books, ${invalid} invalid ISBNs`,
+    });
+})
+
 router.route('/reset').post(async (req: Request, res: Response) => {
     // #swagger.tags = ['Books']
     try {
