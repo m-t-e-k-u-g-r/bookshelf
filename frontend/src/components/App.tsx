@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import Shelf from './Shelf';
 import {getBooks, cleanIsbn, getShelves} from '../dataHandler';
 import {Link, useParams} from "react-router-dom";
@@ -6,6 +6,15 @@ import type { BookProps } from "./Book";
 import Sidebar from "./Sidebar";
 import Nav from "./Nav";
 import { ToastContainer } from "react-toastify";
+
+export const AppContext = createContext<{ reload: () => void } | undefined>(undefined);
+export const useAppContext = () => {
+    const context = useContext(AppContext);
+    if (!context) {
+        throw new Error('useAppContext must be used within an AppProvider');
+    }
+    return context;
+}
 
 export type SortKey = 'title' | 'author' | 'isbn' | 'publish_date';
 export default function App() {
@@ -33,6 +42,10 @@ export default function App() {
         fetchData();
     }, []);
 
+    function reload() {
+        fetchData();
+    }
+
     const filteredBooks: BookProps[] = useMemo(() => {
         if (!shelfId || !shelves[shelfId]) return books;
 
@@ -53,7 +66,7 @@ export default function App() {
     }, [filteredBooks, sortBy]);
 
     return (
-        <>
+        <AppContext.Provider value={{ reload }}>
             <Nav/>
             <ToastContainer toastClassName="toast"/>
             <Link to={'/'} id={'title'}>
@@ -77,6 +90,6 @@ export default function App() {
                     )}
                 </div>
             </div>
-        </>
+        </AppContext.Provider>
     );
 }
