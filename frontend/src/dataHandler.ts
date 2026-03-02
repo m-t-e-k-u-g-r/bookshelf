@@ -75,6 +75,39 @@ export function addBook() {
     });
 }
 
+export async function addBatch(batch: string[]) {
+    if (batch.length === 0) return;
+
+    const promise: Promise<any> = fetch(BOOKS_API_URL + 'batch', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            isbns: batch
+        })
+    })
+        .then(async (response) => {
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Error while adding books');
+            return data;
+        })
+
+    await toast.promise(promise, {
+        pending: 'Adding books...',
+        success: {
+            render({data}) {
+                return data.message;
+            }
+        },
+        error: {
+            render({data}) {
+                return (data as Error).message;
+            }
+        }
+    });
+}
+
 export function handleBookDelete(title: string, isbn: string) {
     const confirmed: boolean = window.confirm(`Delete book "${title}"?`);
     if (!confirmed) return;
