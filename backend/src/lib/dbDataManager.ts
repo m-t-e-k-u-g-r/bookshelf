@@ -129,4 +129,30 @@ export class DbDataManager {
             throw e;
         }
     }
+    static async editShelvesOfBook(isbn: string, shelves: string[]) {
+        const connection: PoolConnection = await pool.getConnection();
+        try {
+            await connection.beginTransaction();
+
+            await connection.query(`
+                DELETE FROM books_in_shelves 
+                WHERE isbn = ?
+                `, [isbn]
+            );
+
+            for (const shelf of shelves) {
+                await connection.query(`
+                    INSERT INTO shelves_books (shelf_id, book_isbn) 
+                    VALUES (?, ?)
+                    `, [shelf, isbn]
+                )
+            }
+            return await connection.commit();
+        } catch (e) {
+            await connection.rollback();
+            throw e;
+        } finally {
+            connection.release();
+        }
+    }
 }
