@@ -71,6 +71,16 @@ export class DbDataManager {
             throw e;
         }
     }
+    static async getBooksByShelf(shelfName: string) {
+        try {
+            return await pool.query(`
+            SELECT * FROM books_in_shelves
+            WHERE shelf = ?
+            `, [shelfName])
+        } catch (e) {
+            throw e;
+        }
+    }
     static async getShelfStats() {
         try {
             return await pool.query(`SELECT * FROM shelf_statistics`);
