@@ -89,6 +89,18 @@ export class DbDataManager {
             throw e;
         }
     }
+    static async updateShelfName(oldName: string, newName: string) {
+        try {
+            return await pool.query(`
+                UPDATE shelves 
+                SET name = ?
+                WHERE name = ?
+                `, [newName, oldName]
+            );
+        } catch (e) {
+            throw e;
+        }
+    }
     static async deleteShelf(shelfName: string) {
         try {
             return await pool.query(`
