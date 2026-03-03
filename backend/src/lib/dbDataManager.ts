@@ -28,9 +28,7 @@ export interface BookInShelf extends Book {
     shelf: string;
 }
 
-export interface ISBNList {
-    isbns: string[];
-}
+export type ISBNList = string[]
 
 export interface SidebarData {
     name: string;
@@ -100,14 +98,16 @@ export class DbDataManager {
     }
     static async getISBNs(): Promise<ISBNList> {
         try {
-            return await getPool().query(`SELECT isbn FROM books`);
+            const result: Book[] = await getPool().query(`SELECT isbn FROM books`);
+            return result.map((row: Book) => row.isbn);
         } catch (e) {
             throw e;
         }
     }
     static async getFormatedISBNs(): Promise<ISBNList> {
         try {
-            return await getPool().query(`SELECT isbn_h FROM books`);
+            const result = await getPool().query(`SELECT isbn_h FROM books`);
+            return result.map((row: Book) => row.isbn_h);
         } catch (e) {
             throw e;
         }
