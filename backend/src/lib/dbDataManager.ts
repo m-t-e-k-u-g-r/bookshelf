@@ -170,8 +170,8 @@ export class DbDataManager {
             await connection.beginTransaction();
 
             await connection.query(`
-                DELETE FROM books_in_shelves 
-                WHERE isbn = ?
+                DELETE FROM shelves_books 
+                WHERE book_isbn = ?
                 `, [isbn]
             );
 
