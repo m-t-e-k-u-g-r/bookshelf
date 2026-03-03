@@ -1,5 +1,6 @@
 import ISBN from 'isbn3';
 import type { Book } from "./dataManager.js";
+import type { Book as dbBook } from "./dbDataManager.js";
 
 export interface APIResponse {
     status: number;
@@ -43,6 +44,18 @@ export function sort(books: Book[], sortBy: SortBy, order: SortOrder): Book[] {
             return valB.localeCompare(valA);
         }
     });
+}
+
+export function sortDb(books: dbBook[], sortBy: SortBy, order: SortOrder): dbBook[] {
+    return [...books].sort((a: dbBook, b: dbBook) => {
+        const valA = String(a[sortBy] || '');
+        const valB = String(b[sortBy] || '');
+        if (order === SortOrder.ASC) {
+            return valA.localeCompare(valB);
+        } else {
+            return valB.localeCompare(valA);
+        }
+    })
 }
 
 function isGoogleBooksResponse(value: GoogleBooksResponse): boolean {
@@ -105,13 +118,15 @@ export async function getBook(isbn: string): Promise<APIResponse> {
         const rawDate: string = info.publishedDate;
         const yearOnly: string = rawDate ? rawDate.substring(0, 4) : 'Unknown';
         const imgUrl: string = info.imageLinks?.thumbnail || 'https://placehold.co/400x640';
-        const isbn13: string | undefined = formatISBN(info.industryIdentifiers.find((i: any) => i.type === 'ISBN_13')!.identifier);
-        if (!isbn13) return { status: 422, error: 'ISBN could not be parsed'};
+        const isbn13h: string | undefined = formatISBN(info.industryIdentifiers.find((i: any) => i.type === 'ISBN_13')!.identifier);
+        if (!isbn13h) return { status: 422, error: 'ISBN could not be parsed'};
+        const isbn13: string = cleanIsbn(isbn13h);
 
         return {
             status: 200,
             data: {
-                isbn: isbn13,
+                isbn: isbn13h,
+                isbn_h: isbn13,
                 title: info.title,
                 author: info.authors ? info.authors.join(', ') : 'Unknown',
                 publish_date: yearOnly,
