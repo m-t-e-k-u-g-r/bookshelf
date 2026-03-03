@@ -14,7 +14,7 @@ CREATE TABLE `books` (
 
 CREATE TABLE `shelves` (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255)
+    name VARCHAR(255) UNIQUE NOT NULL
 );
 
 CREATE TABLE `shelves_books` (
