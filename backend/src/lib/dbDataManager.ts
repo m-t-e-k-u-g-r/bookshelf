@@ -1,13 +1,19 @@
 import * as mariadb from 'mariadb';
 import {type Pool, type PoolConnection} from 'mariadb';
 
-const pool: Pool = mariadb.createPool({
-    host: 'localhost',
-    user: process.env.MARIADB_USER || '',
-    password: process.env.MARIADB_PASSWORD || '',
-    database: process.env.MARIADB_DATABASE || '',
-    connectionLimit: 10,
-});
+let pool: Pool | null = null;
+function getPool(): Pool {
+    if (!pool) {
+        pool = mariadb.createPool({
+            host: 'localhost',
+            user: process.env.MARIADB_USER || '',
+            password: process.env.MARIADB_PASSWORD || '',
+            database: process.env.MARIADB_DATABASE || '',
+            connectionLimit: 10,
+        });
+    }
+    return pool;
+}
 
 export interface Book {
     isbn: string;
@@ -34,14 +40,14 @@ export interface SidebarData {
 export class DbDataManager {
     static async getBooks(): Promise<Book[]> {
         try {
-            return await pool.query(`SELECT * FROM books`);
+            return await getPool().query(`SELECT * FROM books`);
         } catch (e) {
             throw e;
         }
     }
     static async getBookByISBN(isbn: string): Promise<Book> {
         try {
-            return await pool.query(`
+            return await getPool().query(`
                 SELECT * FROM books 
                 WHERE isbn = ?
                 `, [isbn]
@@ -52,7 +58,7 @@ export class DbDataManager {
     }
     static async addBook(book: Book) {
         try {
-            return await pool.query(`
+            return await getPool().query(`
                 INSERT INTO books (isbn, isbn_h, title, author, publish_year, img_url) 
                 VALUES (?, ?, ?, ?, ?, ?)
                 `, [book.isbn, book.isbn_h, book.title, book.author, book.publish_date, book.imgUrl]
@@ -62,7 +68,7 @@ export class DbDataManager {
         }
     }
     static async addBatch(books: Book[]) {
-        const connection: PoolConnection = await pool.getConnection();
+        const connection: PoolConnection = await getPool().getConnection();
         try {
             await connection.beginTransaction();
 
@@ -83,7 +89,7 @@ export class DbDataManager {
     }
     static async deleteBook(isbn: string) {
         try {
-            return await pool.query(`
+            return await getPool().query(`
                 DELETE FROM books 
                 WHERE isbn = ?
                 `, [isbn]
@@ -94,28 +100,28 @@ export class DbDataManager {
     }
     static async getISBNs(): Promise<ISBNList> {
         try {
-            return await pool.query(`SELECT isbn FROM books`);
+            return await getPool().query(`SELECT isbn FROM books`);
         } catch (e) {
             throw e;
         }
     }
     static async getFormatedISBNs(): Promise<ISBNList> {
         try {
-            return await pool.query(`SELECT isbn_h FROM books`);
+            return await getPool().query(`SELECT isbn_h FROM books`);
         } catch (e) {
             throw e;
         }
     }
     static async getShelvesWithBooks(): Promise<BookInShelf[]> {
         try {
-            return await pool.query(`SELECT * FROM books_in_shelves`);
+            return await getPool().query(`SELECT * FROM books_in_shelves`);
         } catch (e) {
             throw e;
         }
     }
     static async getBooksByShelf(shelfName: string): Promise<BookInShelf[]> {
         try {
-            return await pool.query(`
+            return await getPool().query(`
             SELECT * FROM books_in_shelves
             WHERE shelf = ?
             `, [shelfName])
@@ -125,14 +131,14 @@ export class DbDataManager {
     }
     static async getSidebarData(): Promise<SidebarData[]> {
         try {
-            return await pool.query(`SELECT * FROM sidebar_data`);
+            return await getPool().query(`SELECT * FROM sidebar_data`);
         } catch (e) {
             throw e;
         }
     }
     static async addShelf(shelfName: string) {
         try {
-            return await pool.query(`
+            return await getPool().query(`
                 INSERT INTO shelves (name) 
                 VALUES (?)
                 `, [shelfName]
@@ -143,7 +149,7 @@ export class DbDataManager {
     }
     static async updateShelfName(oldName: string, newName: string) {
         try {
-            return await pool.query(`
+            return await getPool().query(`
                 UPDATE shelves 
                 SET name = ?
                 WHERE name = ?
@@ -155,7 +161,7 @@ export class DbDataManager {
     }
     static async deleteShelf(shelfName: string) {
         try {
-            return await pool.query(`
+            return await getPool().query(`
                 DELETE FROM shelves 
                 WHERE name = ?
                 `, [shelfName]
@@ -165,7 +171,7 @@ export class DbDataManager {
         }
     }
     static async editShelvesOfBook(isbn: string, shelves: string[]) {
-        const connection: PoolConnection = await pool.getConnection();
+        const connection: PoolConnection = await getPool().getConnection();
         try {
             await connection.beginTransaction();
 
