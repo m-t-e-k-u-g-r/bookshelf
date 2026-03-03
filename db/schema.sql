@@ -39,3 +39,9 @@ CREATE VIEW `shelf_statistics` AS
     FROM shelves s, shelves_books sb, books b
     WHERE s.id = sb.shelf_id AND b.isbn = sb.book_isbn
     GROUP BY s.name;
+
+CREATE VIEW `sidebar_data` AS
+    SELECT s.name, COUNT(sb.book_isbn) as count
+    FROM shelves s
+    LEFT JOIN shelves_books sb ON s.id = sb.shelf_id
+    GROUP BY s.id;
