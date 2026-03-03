@@ -1,5 +1,5 @@
 import * as mariadb from 'mariadb';
-import { type Pool } from 'mariadb';
+import {type Pool, type PoolConnection} from 'mariadb';
 
 const pool: Pool = mariadb.createPool({
     host: 'localhost',
@@ -8,6 +8,15 @@ const pool: Pool = mariadb.createPool({
     database: process.env.MARIADB_DATABASE || '',
     connectionLimit: 10,
 });
+
+export interface Book {
+    isbn: string;
+    isbn_h: string;
+    title: string;
+    author: string;
+    publish_date: string;
+    imgUrl: string;
+}
 
 export class DbDataManager {
     static async getBooks() {
@@ -37,6 +46,26 @@ export class DbDataManager {
             );
         } catch (e) {
             throw e;
+        }
+    }
+    static async addBatch(books: Book[]) {
+        const connection: PoolConnection = await pool.getConnection();
+        try {
+            await connection.beginTransaction();
+
+            for (const book of books) {
+                await connection.query(`
+                    INSERT INTO books (isbn, isbn_h, title, author, publish_year, img_url) 
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    `, [book.isbn, book.isbn_h, book.title, book.author, book.publish_date, book.imgUrl]
+                );
+            }
+            await connection.commit();
+        } catch (e) {
+            await connection.rollback();
+            throw e;
+        } finally {
+            connection.release();
         }
     }
     static async deleteBook(isbn: string) {
