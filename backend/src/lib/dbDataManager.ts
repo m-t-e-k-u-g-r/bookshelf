@@ -110,13 +110,6 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async getShelfStats() {
-        try {
-            return await pool.query(`SELECT * FROM shelf_statistics`);
-        } catch (e) {
-            throw e;
-        }
-    }
     static async getSidebarData() {
         try {
             return await pool.query(`SELECT * FROM sidebar_data`);
