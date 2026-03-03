@@ -10,6 +10,15 @@ const doc: object = {
         },
         {
             name: 'Shelves'
+        },
+        {
+            name: 'DB Books'
+        },
+        {
+            name: 'DB Shelves'
+        },
+        {
+            name: 'ISBN'
         }
     ],
     host: 'localhost:5500',
