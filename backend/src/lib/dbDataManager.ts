@@ -88,6 +88,13 @@ export class DbDataManager {
             throw e;
         }
     }
+    static async getSidebarData() {
+        try {
+            return await pool.query(`SELECT * FROM sidebar_data`);
+        } catch (e) {
+            throw e;
+        }
+    }
     static async addShelf(shelfName: string) {
         try {
             return await pool.query(`
