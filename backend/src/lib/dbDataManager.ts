@@ -18,15 +18,28 @@ export interface Book {
     imgUrl: string;
 }
 
+export interface BookInShelf extends Book {
+    shelf: string;
+}
+
+export interface ISBNList {
+    isbns: string[];
+}
+
+export interface SidebarData {
+    name: string;
+    count: number;
+}
+
 export class DbDataManager {
-    static async getBooks() {
+    static async getBooks(): Promise<Book[]> {
         try {
             return await pool.query(`SELECT * FROM books`);
         } catch (e) {
             throw e;
         }
     }
-    static async getBookByISBN(isbn: string) {
+    static async getBookByISBN(isbn: string): Promise<Book> {
         try {
             return await pool.query(`
                 SELECT * FROM books 
@@ -37,12 +50,12 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async addBook(isbn: string, isbn_h: string, title: string, author: string, publish_year: number, img_url: string) {
+    static async addBook(book: Book) {
         try {
             return await pool.query(`
                 INSERT INTO books (isbn, isbn_h, title, author, publish_year, img_url) 
                 VALUES (?, ?, ?, ?, ?, ?)
-                `, [isbn, isbn_h, title, author, publish_year, img_url]
+                `, [book.isbn, book.isbn_h, book.title, book.author, book.publish_date, book.imgUrl]
             );
         } catch (e) {
             throw e;
@@ -79,28 +92,28 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async getISBNs() {
+    static async getISBNs(): Promise<ISBNList> {
         try {
             return await pool.query(`SELECT isbn FROM books`);
         } catch (e) {
             throw e;
         }
     }
-    static async getFormatedISBNs() {
+    static async getFormatedISBNs(): Promise<ISBNList> {
         try {
             return await pool.query(`SELECT isbn_h FROM books`);
         } catch (e) {
             throw e;
         }
     }
-    static async getShelvesWithBooks() {
+    static async getShelvesWithBooks(): Promise<BookInShelf[]> {
         try {
             return await pool.query(`SELECT * FROM books_in_shelves`);
         } catch (e) {
             throw e;
         }
     }
-    static async getBooksByShelf(shelfName: string) {
+    static async getBooksByShelf(shelfName: string): Promise<BookInShelf[]> {
         try {
             return await pool.query(`
             SELECT * FROM books_in_shelves
@@ -110,7 +123,7 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async getSidebarData() {
+    static async getSidebarData(): Promise<SidebarData[]> {
         try {
             return await pool.query(`SELECT * FROM sidebar_data`);
         } catch (e) {
