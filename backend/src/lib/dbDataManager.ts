@@ -119,6 +119,19 @@ export class DbDataManager {
             throw e;
         }
     }
+    static async getShelvesOfBook(isbn: string): Promise<string[]> {
+        try {
+            const result = await getPool().query(`
+                SELECT iis.name AS shelf
+                FROM isbns_in_shelves iis
+                WHERE iis.isbn = ?
+                `, [isbn]
+            );
+            return result.map((row: { shelf: string }) => row.shelf);
+        } catch (e) {
+            throw e;
+        }
+    }
     static async getBooksByShelf(shelfName: string): Promise<BookInShelf[]> {
         try {
             return await getPool().query(`

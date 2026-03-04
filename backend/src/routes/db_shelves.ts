@@ -1,6 +1,7 @@
 import express from 'express';
 import { type Router, type Request, type Response } from "express";
 import {DbDataManager as db, type BookInShelf, type SidebarData} from '../lib/dbDataManager.js';
+import {cleanIsbn} from "../lib/utils.js";
 
 const router: Router = express.Router();
 
@@ -48,6 +49,18 @@ router.route('/sidebar').get(async (req: Request, res: Response) => {
         return res.status(200).send(response);
     } catch (e) {
         return res.status(500).json({error: 'Failed to get sidebar data'});
+    }
+});
+
+router.route('/:isbn').get(async (req: Request, res: Response) => {
+    // #swagger.tags = ['DB Shelves']
+    const isbn = req.params.isbn;
+    if (typeof isbn !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
+    try {
+        const response: string[] = await db.getShelvesOfBook(cleanIsbn(isbn));
+        return res.status(200).send(response);
+    } catch (e) {
+        return res.status(500).json({error: `Failed to get shelves of book ${isbn}`});
     }
 });
 
