@@ -12,6 +12,10 @@ export interface BookProps {
     img_url: string;
 }
 
+export interface BooksWithShelves extends BookProps {
+    shelf: string;
+}
+
 export default function Book({ title, author, publish_year, isbn, isbn_h, img_url }: BookProps) {
     const { reload } = useAppContext();
     const [isDeleted, setIsDeleted] = useState(false);

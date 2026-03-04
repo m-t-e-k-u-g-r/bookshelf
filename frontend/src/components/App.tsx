@@ -1,9 +1,9 @@
 import {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import Shelf from './Shelf';
-import {cleanIsbn, getShelves} from '../dataHandler';
-import {getBooks, getSidebarData} from '../dbDataHandler';
+import {cleanIsbn} from '../dataHandler';
+import {getBooks, getShelves, getSidebarData} from '../dbDataHandler';
 import {Link, useParams} from "react-router-dom";
-import type { BookProps } from "./Book";
+import type {BookProps, BooksWithShelves} from "./Book";
 import Sidebar, {type SidebarProps} from "./Sidebar";
 import Nav from "./Nav";
 import { ToastContainer } from "react-toastify";
@@ -22,7 +22,7 @@ export default function App() {
     const [books, setBooks] = useState<BookProps[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [sortBy, setSortBy] = useState<SortKey>('title');
-    const [shelves, setShelves] = useState<Record<string, string[]>>({});
+    const [shelves, setShelves] = useState<BooksWithShelves[]>([]);
     const [sidebarData, setSidebarData] = useState<SidebarProps[]>([]);
     const { shelfId } = useParams<{ shelfId: string }>();
 
@@ -51,14 +51,9 @@ export default function App() {
     }
 
     const filteredBooks: BookProps[] = useMemo(() => {
-        if (!shelfId || !shelves[shelfId]) return books;
+        if (!shelfId) return books;
 
-        const selectedIsbns: string[] = shelves[shelfId];
-
-        return books.filter((b) => {
-            const cleanISBN: string = cleanIsbn(b.isbn);
-            return selectedIsbns.some((isbn: string) => cleanIsbn(isbn) === cleanISBN);
-        })
+        return shelves.filter(s => s.shelf === shelfId)
     }, [books, shelves, shelfId])
 
     const sortedBooks: BookProps[] = useMemo(() => {
