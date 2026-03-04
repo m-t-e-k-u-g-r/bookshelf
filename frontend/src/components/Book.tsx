@@ -6,12 +6,13 @@ import { useAppContext} from "./App";
 export interface BookProps {
     title: string;
     author: string;
-    publish_date: string;
+    publish_year: string;
     isbn: string;
-    imgUrl: string;
+    isbn_h: string;
+    img_url: string;
 }
 
-export default function Book({ title, author, publish_date, isbn, imgUrl }: BookProps) {
+export default function Book({ title, author, publish_year, isbn, isbn_h, img_url }: BookProps) {
     const { reload } = useAppContext();
     const [isDeleted, setIsDeleted] = useState(false);
     const [allShelves, setAllShelves] = useState<Record<string, string[]>>({});
@@ -61,7 +62,7 @@ export default function Book({ title, author, publish_date, isbn, imgUrl }: Book
 
     return (
         <div className={isDeleted ? 'book deleted': 'book'}>
-            <img src={imgUrl} alt={`${title} by ${author}`}/>
+            <img src={img_url} alt={`${title} by ${author}`}/>
             <div className={'book_content'}
                 id={title.toLowerCase()
                     .replace(/ /g, '')}
@@ -69,8 +70,8 @@ export default function Book({ title, author, publish_date, isbn, imgUrl }: Book
                 <p title={title} className={'title'}>{title}</p>
                 <div className={'meta'}>
                     <p className={'author'}>{author}</p>
-                    <p className={'publishDate'}>Year: {publish_date}</p>
-                    <p className={'isbn'}>{isbn}</p>
+                    <p className={'publishDate'}>Year: {publish_year}</p>
+                    <p className={'isbn'}>{isbn_h}</p>
                 </div>
                 <KebabMenu
                     items={menuItems}

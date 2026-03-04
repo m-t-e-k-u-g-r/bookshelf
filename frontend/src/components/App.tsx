@@ -1,6 +1,7 @@
 import {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import Shelf from './Shelf';
-import {getBooks, cleanIsbn, getShelves} from '../dataHandler';
+import {cleanIsbn, getShelves} from '../dataHandler';
+import {getBooks} from '../dbDataHandler';
 import {Link, useParams} from "react-router-dom";
 import type { BookProps } from "./Book";
 import Sidebar from "./Sidebar";

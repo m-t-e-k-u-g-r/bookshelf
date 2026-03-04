@@ -25,9 +25,10 @@ export default function Shelf({ shelfId, books, onSortChange }: ShelfProps) {
                         key={bookData.isbn}
                         title={bookData.title}
                         author={bookData.author}
-                        publish_date={bookData.publish_date}
+                        publish_year={bookData.publish_year}
                         isbn={bookData.isbn}
-                        imgUrl={bookData.imgUrl}
+                        isbn_h={bookData.isbn_h}
+                        img_url={bookData.img_url}
                     />
                 )}
             </section>
