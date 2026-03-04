@@ -16,3 +16,12 @@ export async function getBooks(): Promise<BookProps[]> {
         return [];
     }
 }
+
+export async function getSidebarData() {
+    try {
+        const response: Response = await fetch(SHELVES_API_URL + 'sidebar');
+        return await response.json();
+    } catch (e) {
+        console.error('Error while fetching sidebar data:', e);
+    }
+}

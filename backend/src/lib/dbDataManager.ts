@@ -10,6 +10,7 @@ function getPool(): Pool {
             password: process.env.MARIADB_PASSWORD || '',
             database: process.env.MARIADB_DATABASE || '',
             connectionLimit: 10,
+            bigIntAsNumber: true,
         });
     }
     return pool;

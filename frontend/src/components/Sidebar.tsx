@@ -3,9 +3,13 @@ import { Link } from 'react-router-dom';
 import {createShelf, deleteShelf, type menuItem, renameShelf} from '../dataHandler';
 import {KebabMenu} from "./KebabMenu";
 
-export default function Sidebar({ shelfData }: { shelfData: Record<string, string[]> }) {
+export interface SidebarProps {
+    name: string;
+    count: number;
+}
+
+export default function Sidebar({ shelfData }: { shelfData: SidebarProps[] }) {
     const [isOpen, setIsOpen] = useState(true);
-    const shelfNames: string[] = Object.keys(shelfData);
 
     function handleCreateShelf(): void {
         const shelfName: string | null = window.prompt('Enter name of new shelf:');
@@ -36,7 +40,9 @@ export default function Sidebar({ shelfData }: { shelfData: Record<string, strin
                 </button>
                 {isOpen && (
                     <div className={'accordion_body'}>
-                        {shelfNames.map((sN: string) => {
+                        {shelfData.map((shelf) => {
+                            const sN: string = shelf.name;
+                            const count: number = shelf.count;
                             const menuItems: menuItem[] = [
                                 { label: 'Delete', onClick: () => handleDeleteShelf(sN) },
                                 { label: 'Rename', onClick: () => handleRenameShelf(sN) }
@@ -45,7 +51,7 @@ export default function Sidebar({ shelfData }: { shelfData: Record<string, strin
                                 <Link key={sN} title={sN} to={`/s/${sN}`} className={'shelf_entry'}>
                                     <span className={'shelf_wrapper'}>
                                         <p className={'shelf_name'}>{sN}</p>
-                                        <p className={'count'}>{shelfData[sN] !== undefined ? shelfData[sN].length : 0}</p>
+                                        <p className={'count'}>{count}</p>
                                         <div className={'shelf-menu'}>
                                             <KebabMenu items={menuItems} />
                                         </div>

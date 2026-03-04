@@ -1,10 +1,10 @@
 import {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import Shelf from './Shelf';
 import {cleanIsbn, getShelves} from '../dataHandler';
-import {getBooks} from '../dbDataHandler';
+import {getBooks, getSidebarData} from '../dbDataHandler';
 import {Link, useParams} from "react-router-dom";
 import type { BookProps } from "./Book";
-import Sidebar from "./Sidebar";
+import Sidebar, {type SidebarProps} from "./Sidebar";
 import Nav from "./Nav";
 import { ToastContainer } from "react-toastify";
 
@@ -23,6 +23,7 @@ export default function App() {
     const [isLoading, setIsLoading] = useState(true);
     const [sortBy, setSortBy] = useState<SortKey>('title');
     const [shelves, setShelves] = useState<Record<string, string[]>>({});
+    const [sidebarData, setSidebarData] = useState<SidebarProps[]>([]);
     const { shelfId } = useParams<{ shelfId: string }>();
 
     const handleSortChange = (newValue: SortKey) => {
@@ -30,12 +31,14 @@ export default function App() {
     }
 
     const fetchData = async () => {
-        const [booksRes, shelvesRes]: [BookProps[], Record<string, string[]>] = await Promise.all([
+        const [booksRes, shelvesRes, sidebarRes]: [BookProps[], Record<string, string[]>, SidebarProps[]] = await Promise.all([
             getBooks(),
-            getShelves()
+            getShelves(),
+            getSidebarData()
         ]);
         setBooks(booksRes);
         setShelves(shelvesRes);
+        setSidebarData(sidebarRes);
         setIsLoading(false);
     };
 
@@ -76,7 +79,7 @@ export default function App() {
             <div className={'container'}>
                 <div className={'sideBar'}>
                     <Sidebar
-                        shelfData={shelves}
+                        shelfData={sidebarData}
                     />
                 </div>
                 <div className={'shelves'}>
