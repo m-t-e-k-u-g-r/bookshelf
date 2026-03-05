@@ -1,5 +1,7 @@
+### --- DB BOOKS ---
+
 ### GET ALL BOOKS
-GET http://{{host}}:{{port}}/books HTTP/1.1
+GET http://{{host}}:{{port}}/db/books HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -8,7 +10,7 @@ GET http://{{host}}:{{port}}/books HTTP/1.1
 %}
 
 ### GET ALL BOOKS SORTED BY AUTHOR (DESCENDING)
-GET http://{{host}}:{{port}}/books?sortBy=author&order=desc HTTP/1.1
+GET http://{{host}}:{{port}}/db/books?sortBy=author&order=desc HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -17,7 +19,7 @@ GET http://{{host}}:{{port}}/books?sortBy=author&order=desc HTTP/1.1
 %}
 
 ### GET ALL BOOKS AND HIDE ATTRIBUTES
-GET http://{{host}}:{{port}}/books?hide=isbn,imgUrl HTTP/1.1
+GET http://{{host}}:{{port}}/db/books?hide=isbn,imgUrl HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -26,7 +28,7 @@ GET http://{{host}}:{{port}}/books?hide=isbn,imgUrl HTTP/1.1
 %}
 
 ### GET ONE BOOK (FIRST OF SEED)
-GET http://{{host}}:{{port}}/books/9781806982516 HTTP/1.1
+GET http://{{host}}:{{port}}/db/books/9781806982516 HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -35,7 +37,7 @@ GET http://{{host}}:{{port}}/books/9781806982516 HTTP/1.1
 %}
 
 ### GET ONE BOOK - NOT FOUND
-GET http://{{host}}:{{port}}/books/0000000000000 HTTP/1.1
+GET http://{{host}}:{{port}}/db/books/1234567890123 HTTP/1.1
 
 > {%
     client.test("Request failed as expected", function() {
@@ -43,26 +45,8 @@ GET http://{{host}}:{{port}}/books/0000000000000 HTTP/1.1
     });
 %}
 
-### POST REQUEST TO UPDATE LIST (RESET)
-POST http://{{host}}:{{port}}/books/reset HTTP/1.1
-
-> {%
-    client.test("Request executed successfully", function() {
-        client.assert(response.status === 200, "Response status is not 200");
-    });
-%}
-
-### POST BOOK - NOT FOUND (INVALID ISBN)
-POST http://{{host}}:{{port}}/books/1234567890123 HTTP/1.1
-
-> {%
-    client.test("Post book not found", function() {
-        client.assert(response.status === 400, "Expected code 400, got: " + response.status);
-    });
-%}
-
 ### ADD NEW BOOK
-POST http://{{host}}:{{port}}/books/9781853260001 HTTP/1.1
+POST http://{{host}}:{{port}}/db/books/9781853260001 HTTP/1.1
 
 > {%
     client.test("Post book successful", function() {
@@ -70,8 +54,31 @@ POST http://{{host}}:{{port}}/books/9781853260001 HTTP/1.1
     })
 %}
 
+### POST BOOK - INVALID ISBN (BAD REQUEST)
+POST http://{{host}}:{{port}}/db/books/1234567890123 HTTP/1.1
+
+> {%
+    client.test("Post book invalid ISBN", function() {
+        client.assert(response.status === 400, "Expected code 400, got: " + response.status);
+    });
+%}
+
+### BATCH ADD BOOKS
+POST http://{{host}}:{{port}}/db/books/batch HTTP/1.1
+Content-Type: application/json
+
+{
+  "isbns": ["9780544003415", "9780141439518"]
+}
+
+> {%
+    client.test("Batch add successful", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+    });
+%}
+
 ### REMOVE BOOK
-DELETE http://{{host}}:{{port}}/books/9781853260001 HTTP/1.1
+DELETE http://{{host}}:{{port}}/db/books/9781853260001 HTTP/1.1
 
 > {%
     client.test("Delete book successful", function() {
@@ -79,17 +86,47 @@ DELETE http://{{host}}:{{port}}/books/9781853260001 HTTP/1.1
     })
 %}
 
-### DELETE NON-EXISTENT BOOK
-DELETE http://{{host}}:{{port}}/books/1234567890123 HTTP/1.1
+
+### --- DB SHELVES ---
+
+### GET ALL SHELVES (WITH BOOKS)
+GET http://{{host}}:{{port}}/db/shelves HTTP/1.1
 
 > {%
-    client.test("Expect 404 for non-existent book", function() {
-        client.assert(response.status === 404, "Response status is not 404");
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
     });
 %}
 
-### GET ALL SHELVES
-GET http://{{host}}:{{port}}/shelves HTTP/1.1
+### GET SHELF NAMES ONLY
+GET http://{{host}}:{{port}}/db/shelves/names HTTP/1.1
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### GET SIDEBAR DATA
+GET http://{{host}}:{{port}}/db/shelves/sidebar HTTP/1.1
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### GET SHELVES OF A SPECIFIC BOOK
+GET http://{{host}}:{{port}}/db/shelves/b/9781806982516 HTTP/1.1
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### GET BOOKS IN A SPECIFIC SHELF
+GET http://{{host}}:{{port}}/db/shelves/Favorites HTTP/1.1
 
 > {%
     client.test("Request executed successfully", function() {
@@ -98,7 +135,7 @@ GET http://{{host}}:{{port}}/shelves HTTP/1.1
 %}
 
 ### CREATE A NEW SHELF
-POST http://{{host}}:{{port}}/shelves/ScienceFiction HTTP/1.1
+POST http://{{host}}:{{port}}/db/shelves/ScienceFiction HTTP/1.1
 
 > {%
     client.test("Create shelf", function() {
@@ -106,17 +143,8 @@ POST http://{{host}}:{{port}}/shelves/ScienceFiction HTTP/1.1
     });
 %}
 
-### CREATE SHELF WITH INVALID NAME (EMPTY)
-POST http://{{host}}:{{port}}/shelves/%20 HTTP/1.1
-
-> {%
-    client.test("Expect 400 for invalid shelf name", function() {
-        client.assert(response.status === 400, "Response status is not 400");
-    });
-%}
-
 ### ASSIGN BOOK TO SHELVES
-POST http://{{host}}:{{port}}/shelves/ HTTP/1.1
+POST http://{{host}}:{{port}}/db/shelves/ HTTP/1.1
 Content-Type: application/json
 
 {
@@ -131,12 +159,12 @@ Content-Type: application/json
 %}
 
 ### RENAME A SHELF
-PUT http://{{host}}:{{port}}/shelves/ HTTP/1.1
+PUT http://{{host}}:{{port}}/db/shelves/ HTTP/1.1
 Content-Type: application/json
 
 {
-  "shelf": "ScienceFiction",
-  "shelfName": "Sci-Fi"
+  "oldShelfName": "ScienceFiction",
+  "newShelfName": "Sci-Fi"
 }
 
 > {%
@@ -146,4 +174,10 @@ Content-Type: application/json
 %}
 
 ### DELETE A SHELF
-DELETE http://{{host}}:{{port}}/shelves/Sci-Fi HTTP/1.1
+DELETE http://{{host}}:{{port}}/db/shelves/Sci-Fi HTTP/1.1
+
+> {%
+    client.test("Delete shelf", function() {
+        client.assert(response.status === 204, "Response status is not 204");
+    });
+%}
