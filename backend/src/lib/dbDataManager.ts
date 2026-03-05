@@ -113,6 +113,14 @@ export class DbDataManager {
             throw e;
         }
     }
+    static async getShelfNames(): Promise<string[]> {
+        try {
+            const result = await getPool().query(`SELECT name FROM shelves`);
+            return result.map((row: { name: string }) => row.name);
+        } catch (e) {
+            throw e;
+        }
+    }
     static async getShelvesWithBooks(): Promise<BookInShelf[]> {
         try {
             return await getPool().query(`SELECT * FROM books_in_shelves`);
