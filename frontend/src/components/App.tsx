@@ -1,7 +1,6 @@
 import {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import Shelf from './Shelf';
-import {cleanIsbn} from '../dataHandler';
-import {getBooks, getShelves, getSidebarData} from '../dbDataHandler';
+import {getBooks, getShelvedBooks, getSidebarData} from '../dbDataHandler';
 import {Link, useParams} from "react-router-dom";
 import type {BookProps, BooksWithShelves} from "./Book";
 import Sidebar, {type SidebarProps} from "./Sidebar";
@@ -22,7 +21,7 @@ export default function App() {
     const [books, setBooks] = useState<BookProps[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [sortBy, setSortBy] = useState<SortKey>('title');
-    const [shelves, setShelves] = useState<BooksWithShelves[]>([]);
+    const [shelvedBooks, setShelvedBooks] = useState<BooksWithShelves[]>([]);
     const [sidebarData, setSidebarData] = useState<SidebarProps[]>([]);
     const { shelfId } = useParams<{ shelfId: string }>();
 
@@ -33,11 +32,11 @@ export default function App() {
     const fetchData = async () => {
         const [booksRes, shelvesRes, sidebarRes]: [BookProps[], Record<string, string[]>, SidebarProps[]] = await Promise.all([
             getBooks(),
-            getShelves(),
+            getShelvedBooks(),
             getSidebarData()
         ]);
         setBooks(booksRes);
-        setShelves(shelvesRes);
+        setShelvedBooks(shelvesRes);
         setSidebarData(sidebarRes);
         setIsLoading(false);
     };
@@ -53,8 +52,8 @@ export default function App() {
     const filteredBooks: BookProps[] = useMemo(() => {
         if (!shelfId) return books;
 
-        return shelves.filter(s => s.shelf === shelfId)
-    }, [books, shelves, shelfId])
+        return shelvedBooks.filter(s => s.shelf === shelfId)
+    }, [books, shelvedBooks, shelfId])
 
     const sortedBooks: BookProps[] = useMemo(() => {
         return [...filteredBooks].sort((a, b) => {
