@@ -7,12 +7,15 @@
     "frontend"
   ],
   "scripts": {
+    "docker:build": "docker compose -f ./db/docker-compose.yml up -d",
+    "docker:start": "dotenv -- cmd /c \"docker start %DB_CONTAINER%\"",
+    "docker:stop": "dotenv -- cmd /c \"docker stop %DB_CONTAINER%\"",
     "backend:dev": "npm run dev --workspace=backend",
     "backend:build": "npm run build --workspace=backend",
     "frontend:dev": "npm run dev --workspace=frontend",
     "frontend:build": "npm run build --workspace=frontend",
     "build": "npm run build --workspaces",
-    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\""
+    "dev": "npm run docker:start && concurrently \"npm run backend:dev\" \"npm run frontend:dev\""
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
