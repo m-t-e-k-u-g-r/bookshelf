@@ -1,5 +1,5 @@
 import CustomButton from './CustomButton.js';
-import { reload, addBook } from "../dataHandler";
+import { addBook } from "../dbDataHandler";
 import CombinedInput from "./CombinedInput";
 import {useRef} from "react";
 
@@ -16,7 +16,7 @@ export default function Nav() {
     return (
         <>
             <nav>
-                <CustomButton onClick={reload} children={'Reload'}/>
+                {/*<CustomButton onClick={reload} children={'Reload'}/>*/}
                 <CustomButton onClick={openDialog} children={'Add Batch'}/>
                 <CustomButton onClick={addBook} children={'Add Book'}/>
             </nav>

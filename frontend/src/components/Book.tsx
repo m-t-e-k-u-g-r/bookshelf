@@ -1,7 +1,14 @@
-import {handleBookDelete, type menuItem, getShelves, editShelvesOfBook, cleanIsbn} from "../dataHandler";
+import {
+    type menuItem,
+    handleBookDelete,
+    editShelvesOfBook,
+    getShelvesOfBook,
+    getAllShelves
+} from '../dbDataHandler';
 import {useRef, useState} from "react";
 import { KebabMenu } from "./KebabMenu";
 import { useAppContext} from "./App";
+import {toast} from "react-toastify";
 
 export interface BookProps {
     title: string;
@@ -19,7 +26,8 @@ export interface BooksWithShelves extends BookProps {
 export default function Book({ title, author, publish_year, isbn, isbn_h, img_url }: BookProps) {
     const { reload } = useAppContext();
     const [isDeleted, setIsDeleted] = useState(false);
-    const [allShelves, setAllShelves] = useState<Record<string, string[]>>({});
+    const [allShelves, setAllShelves] = useState<string[]>([]);
+    const [shelves, setShelves] = useState<string[]>([]);
     const dialogRef = useRef<HTMLDialogElement>(null);
 
     const menuItems: menuItem[] = [
@@ -30,37 +38,30 @@ export default function Book({ title, author, publish_year, isbn, isbn_h, img_ur
         {label: 'Edit shelves', onClick: () => editShelves()},
     ];
 
-    async function editShelves() {
-        const shelfData: Record<string, string[]> = await getShelves();
-        setAllShelves(shelfData);
+    async function editShelves(): Promise<void> {
+        const AllShelves: string[] = await getAllShelves();
+        const shelves: string[] = await getShelvesOfBook(isbn);
+        setAllShelves(AllShelves);
+        setShelves(shelves);
         dialogRef.current?.showModal();
     }
 
-    async function handleShelfChange(shelfName: string, isChecked: boolean) {
-        const cleanCurrentIsbn: string = cleanIsbn(isbn);
-        const updatedShelves = { ...allShelves };
-
+    function handleShelfChange(shelfName: string, isChecked: boolean): void {
         if (isChecked) {
-            const currentShelves: string[] = updatedShelves[shelfName] || [];
-            if (!currentShelves.map(cleanIsbn).includes(cleanCurrentIsbn)) {
-                updatedShelves[shelfName] = [...(updatedShelves[shelfName] || []), isbn];
-            }
+            setShelves(prev => prev.includes(shelfName) ? prev : [...prev, shelfName]);
         } else {
-            updatedShelves[shelfName] = (updatedShelves[shelfName] ?? []).filter(i => cleanIsbn(i) !== cleanCurrentIsbn);
+            setShelves(prev => prev.filter(s => s !== shelfName));
         }
+    }
 
-        const selectedShelves: string[] = Object.keys(updatedShelves).filter(name =>
-            (updatedShelves[name] ?? []).includes(isbn)
-        );
-
-        const ISBN: string = cleanIsbn(isbn);
-
+    async function handleSave(): Promise<void> {
         try {
-            editShelvesOfBook(ISBN, selectedShelves);
-            setAllShelves(updatedShelves);
+            await editShelvesOfBook(isbn, shelves);
+            dialogRef.current?.close();
             reload();
         } catch (e) {
-            console.error(e);
+            toast.error('Error saving shelves');
+            console.error('Error saving shelves:', e);
         }
     }
 
@@ -85,12 +86,12 @@ export default function Book({ title, author, publish_year, isbn, isbn_h, img_ur
                 <div>
                     <h3>Edit shelves for "{title}"</h3>
                     <div style={{ margin: '15px 0' }}>
-                        {Object.keys(allShelves).map(shelfName => (
+                        {(allShelves).map((shelfName: string) => (
                             <div key={shelfName} style={{ marginBottom: '10px' }}>
                                 <label>
                                     <input
                                         type={'checkbox'}
-                                        checked={allShelves[shelfName]?.map(cleanIsbn).includes(cleanIsbn(isbn))}
+                                        checked={shelves.includes(shelfName)}
                                         onChange={(e) => handleShelfChange(shelfName, e.target.checked)}
                                     />
                                     {shelfName}
@@ -98,12 +99,7 @@ export default function Book({ title, author, publish_year, isbn, isbn_h, img_ur
                             </div>
                         ))}
                     </div>
-                    <button
-                        onClick={() => {
-                            dialogRef.current?.close()
-                        }}
-                        className="button"
-                    >
+                    <button onClick={handleSave}>
                         Close
                     </button>
                 </div>

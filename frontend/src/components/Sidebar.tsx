@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import { Link } from 'react-router-dom';
-import {createShelf, deleteShelf, type menuItem, renameShelf} from '../dataHandler';
+import {createShelf, renameShelf, deleteShelf, type menuItem} from '../dbDataHandler';
+import { useAppContext } from './App';
 import {KebabMenu} from "./KebabMenu";
 
 export interface SidebarProps {
@@ -10,23 +11,27 @@ export interface SidebarProps {
 
 export default function Sidebar({ shelfData }: { shelfData: SidebarProps[] }) {
     const [isOpen, setIsOpen] = useState(true);
+    const { reload } = useAppContext();
 
     function handleCreateShelf(): void {
         const shelfName: string | null = window.prompt('Enter name of new shelf:');
-        if (shelfName === null) return;
+        if (shelfName === null || shelfName == '') return;
         createShelf(shelfName);
+        reload();
     }
 
     function handleRenameShelf(oldShelfName: string): void {
         const newShelfName: string | null = window.prompt('Enter new name of shelf:');
-        if (newShelfName === null) return alert('No shelf name entered.');
+        if (newShelfName === null || newShelfName == '') return alert('No shelf name entered.');
         renameShelf(oldShelfName, newShelfName);
+        reload();
     }
 
     function handleDeleteShelf(shelfName: string): void {
         const confirmed: boolean = window.confirm('Delete shelf?');
         if (!confirmed) return;
         deleteShelf(shelfName);
+        reload();
     }
 
     return (

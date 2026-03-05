@@ -1,5 +1,5 @@
 import CustomButton from "./CustomButton";
-import {addBatch} from "../dataHandler";
+import {addBatch} from "../dbDataHandler";
 import {type ChangeEvent, useState} from "react";
 
 export default function CombinedInput({ close }: { close: () => void }) {
