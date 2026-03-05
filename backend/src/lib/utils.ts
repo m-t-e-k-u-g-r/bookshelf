@@ -125,8 +125,8 @@ export async function getBook(isbn: string): Promise<APIResponse> {
         return {
             status: 200,
             data: {
-                isbn: isbn13h,
-                isbn_h: isbn13,
+                isbn: isbn13,
+                isbn_h: isbn13h,
                 title: info.title,
                 author: info.authors ? info.authors.join(', ') : 'Unknown',
                 publish_date: yearOnly,
