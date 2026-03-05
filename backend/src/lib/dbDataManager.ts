@@ -204,10 +204,11 @@ export class DbDataManager {
             );
 
             for (const shelf of shelves) {
+                const shelfId: number = await connection.query(`SELECT id FROM shelves WHERE name = ?`, [shelf]);
                 await connection.query(`
                     INSERT INTO shelves_books (shelf_id, book_isbn) 
                     VALUES (?, ?)
-                    `, [shelf, isbn]
+                    `, [shelfId, isbn]
                 )
             }
             return await connection.commit();
