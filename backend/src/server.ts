@@ -10,8 +10,6 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 const swaggerPath = new URL('./swagger/swagger.json', import.meta.url);
 const swaggerDoc = JSON.parse(await readFile(fileURLToPath(swaggerPath), 'utf8'));
-import booksRouter from './routes/books.js';
-import shelvesRouter from './routes/shelves.js';
 import dbRouter from './routes/db_router.js';
 import { DbDataManager as db} from "./lib/dbDataManager.js";
 import { addBook, type APIResponse} from './lib/utils.js';
@@ -39,8 +37,6 @@ app.get('/isbn-h', async (req: Request, res: Response) => {
     // #swagger.tags = ['ISBN']
     res.send(await db.getFormatedISBNs());
 })
-app.use('/books', booksRouter);
-app.use('/shelves', shelvesRouter);
 app.use('/db', dbRouter);
 app.use('/swagger-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
