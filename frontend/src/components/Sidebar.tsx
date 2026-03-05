@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {createShelf, renameShelf, deleteShelf, type menuItem} from '../dbDataHandler';
 import { useAppContext } from './App';
 import {KebabMenu} from "./KebabMenu";
+import {isOnlyWhitespace} from "../lib/utils";
 
 export interface SidebarProps {
     name: string;
@@ -16,6 +17,7 @@ export default function Sidebar({ shelfData }: { shelfData: SidebarProps[] }) {
     function handleCreateShelf(): void {
         const shelfName: string | null = window.prompt('Enter name of new shelf:');
         if (shelfName === null || shelfName == '') return;
+        if (isOnlyWhitespace(shelfName)) return;
         createShelf(shelfName);
         reload();
     }
@@ -23,6 +25,7 @@ export default function Sidebar({ shelfData }: { shelfData: SidebarProps[] }) {
     function handleRenameShelf(oldShelfName: string): void {
         const newShelfName: string | null = window.prompt('Enter new name of shelf:');
         if (newShelfName === null || newShelfName == '') return alert('No shelf name entered.');
+        if (isOnlyWhitespace(newShelfName)) return alert('Shelf name cannot be only whitespace.');
         renameShelf(oldShelfName, newShelfName);
         reload();
     }

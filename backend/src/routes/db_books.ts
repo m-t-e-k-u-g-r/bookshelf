@@ -71,14 +71,18 @@ router.route('/:isbn')
         const isbn = req.params.isbn;
         if (isbn == null) return res.status(400).json({error: 'Invalid ISBN'});
         if (typeof isbn == 'string') {
-            const book: Book = await db.getBookByISBN(isbn);
+            const book: Book | undefined = await db.getBookByISBN(cleanIsbn(isbn));
+            if (book == undefined) return res.status(404).json({error: 'Book not found'});
             return res.status(200).send(book);
         } else {
             let books: Book[] = [];
             for (const i of isbn) {
-                const book: Book = await db.getBookByISBN(i);
-                books.push(book);
+                const book: Book | undefined = await db.getBookByISBN(cleanIsbn(i));
+                if (book != undefined) {
+                    books.push(book);
+                }
             }
+            if (books.length == 0) return res.status(404).json({error: 'Book not found'});
             return res.status(200).send(books);
         }
     })
@@ -101,7 +105,10 @@ router.route('/:isbn')
             return res.status(201).json({
                 message: `Book '${entry.title}' added successfully`,
             });
-        } catch (e) {
+        } catch (e: any) {
+            if (e.message == 'BOOK_ALREADY_EXISTS') {
+                return res.status(409).json({error: 'Book already exists'});
+            }
             return res.status(500).json({ error: 'Failed to add book' });
         }
     })

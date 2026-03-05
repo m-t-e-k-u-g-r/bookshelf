@@ -44,13 +44,17 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async getBookByISBN(isbn: string): Promise<Book> {
+    static async getBookByISBN(isbn: string): Promise<Book | undefined> {
         try {
-            return await getPool().query(`
+            const result = await getPool().query(`
                 SELECT * FROM books 
                 WHERE isbn = ?
                 `, [isbn]
             );
+            if (!Array.isArray(result) || result.length === 0) {
+                return undefined;
+            }
+            return result[0] as Book;
         } catch (e) {
             throw e;
         }
@@ -62,7 +66,10 @@ export class DbDataManager {
                 VALUES (?, ?, ?, ?, ?, ?)
                 `, [book.isbn, book.isbn_h, book.title, book.author, book.publish_date, book.imgUrl]
             );
-        } catch (e) {
+        } catch (e: any) {
+            if (e.errno === 1062) {
+                throw new Error('BOOK_ALREADY_EXISTS');
+            }
             throw e;
         }
     }
@@ -79,8 +86,11 @@ export class DbDataManager {
                 );
             }
             await connection.commit();
-        } catch (e) {
+        } catch (e: any) {
             await connection.rollback();
+            if (e.errno === 1062) {
+                throw new Error('BOOK_ALREADY_EXISTS');
+            }
             throw e;
         } finally {
             connection.release();
@@ -128,7 +138,7 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async getShelvesOfBook(isbn: string): Promise<string[]> {
+    static async getShelvesOfBook(isbn: string): Promise<string[] | undefined> {
         try {
             const result = await getPool().query(`
                 SELECT iis.name AS shelf
@@ -136,6 +146,9 @@ export class DbDataManager {
                 WHERE iis.isbn = ?
                 `, [isbn]
             );
+            if (!Array.isArray(result) || result.length === 0) {
+                return undefined;
+            }
             return result.map((row: { shelf: string }) => row.shelf);
         } catch (e) {
             throw e;

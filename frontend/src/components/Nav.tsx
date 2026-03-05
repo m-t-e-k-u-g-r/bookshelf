@@ -16,7 +16,6 @@ export default function Nav() {
     return (
         <>
             <nav>
-                {/*<CustomButton onClick={reload} children={'Reload'}/>*/}
                 <CustomButton onClick={openDialog} children={'Add Batch'}/>
                 <CustomButton onClick={addBook} children={'Add Book'}/>
             </nav>

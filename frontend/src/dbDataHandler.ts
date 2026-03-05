@@ -1,5 +1,6 @@
 import {toast} from "react-toastify";
 import type {BookProps} from "./components/Book";
+import {isOnlyWhitespace} from "./lib/utils";
 
 export const API_URL: string = 'http://localhost:5500/';
 export const DB_API_URL: string = API_URL + 'db/';
@@ -63,7 +64,7 @@ export async function getSidebarData() {
 
 export function addBook() {
     const enteredIsbn: string | null = window.prompt('Enter ISBN of book to add:');
-    if (enteredIsbn === null) return;
+    if (enteredIsbn === null || isOnlyWhitespace(enteredIsbn)) return alert('ISBN cannot be empty');
     const isbn: string = cleanText(enteredIsbn);
 
     const promise = fetch(BOOKS_API_URL + isbn, {

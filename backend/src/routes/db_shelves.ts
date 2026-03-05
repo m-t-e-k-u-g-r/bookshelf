@@ -53,6 +53,7 @@ router.route('/sidebar').get(async (req: Request, res: Response) => {
 });
 
 router.route('/names').get(async (req: Request, res: Response) => {
+    // #swagger.tags = ['DB Shelves']
     try {
         const response: string[] = await db.getShelfNames();
         return res.status(200).send(response);
@@ -66,7 +67,8 @@ router.route('/b/:isbn').get(async (req: Request, res: Response) => {
     const isbn = req.params.isbn;
     if (typeof isbn !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
     try {
-        const response: string[] = await db.getShelvesOfBook(cleanIsbn(isbn));
+        const response: string[] | undefined = await db.getShelvesOfBook(cleanIsbn(isbn));
+        if (response == undefined) return res.status(404).json({error: 'Book not found'});
         return res.status(200).send(response);
     } catch (e) {
         return res.status(500).json({error: `Failed to get shelves of book ${isbn}`});
@@ -88,7 +90,7 @@ router.route('/:shelfName')
     .post(async (req: Request, res: Response) => {
         // #swagger.tags = ['DB Shelves']
         const shelfName = req.params.shelfName;
-        if (typeof shelfName !== 'string') return res.status(400).json({error: 'Invalid shelf name'});
+        if (typeof shelfName !== 'string' || shelfName == '') return res.status(400).json({error: 'Invalid shelf name'});
         try {
             await db.addShelf(shelfName);
             return res.status(201).json({ message: `Shelf '${shelfName}' created.` });
