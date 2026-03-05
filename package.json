@@ -2,6 +2,7 @@
   "name": "bookshelf",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "workspaces": [
     "backend",
     "frontend"
@@ -15,7 +16,9 @@
     "frontend:dev": "npm run dev --workspace=frontend",
     "frontend:build": "npm run build --workspace=frontend",
     "build": "npm run build --workspaces",
-    "dev": "npm run docker:start && concurrently \"npm run backend:dev\" \"npm run frontend:dev\""
+    "dev": "npm run docker:start && concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "prestart": "node dist/backend/swagger/swagger.js",
+    "start": "node dist/backend/server.js"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

@@ -21,7 +21,11 @@ app.use(cors({
     origin: allowedOrigins.length > 0 ? allowedOrigins : '*',
 }));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../../dist/frontend')));
 
+app.get('/', async (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../../dist/frontend', 'index.html'));
+});
 app.get('/isbn', async (req: Request, res: Response) => {
     // #swagger.tags = ['ISBN']
     res.send(await db.getISBNs());
