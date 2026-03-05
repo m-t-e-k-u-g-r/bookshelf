@@ -12,13 +12,6 @@ const swaggerPath = new URL('./swagger/swagger.json', import.meta.url);
 const swaggerDoc = JSON.parse(await readFile(fileURLToPath(swaggerPath), 'utf8'));
 import dbRouter from './routes/db_router.js';
 import { DbDataManager as db} from "./lib/dbDataManager.js";
-import { addBook, type APIResponse} from './lib/utils.js';
-import {type Book, type ISBNList} from './lib/dataManager.js';
-import { DataManager } from "./lib/dataManager.js";
-
-const ISBNdata: ISBNList = await DataManager.getISBNs();
-let books: Book[] = await DataManager.getBooks();
-let hasChanges: boolean = false;
 
 const PORT: string = process.env.PORT || '5500';
 const app: Express = express();
@@ -43,18 +36,3 @@ app.use('/swagger-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 app.listen(PORT,
     () => console.log(`Server running on port ${PORT}.`)
 );
-
-for (const isbn of ISBNdata) {
-    if (books.find((b: Book) => b.isbn === isbn)) continue;
-
-    const response: APIResponse = await addBook(isbn, books);
-    if (response.status !== 201 && response.data) {
-        const newBook: Book = response.data;
-        books.push(newBook);
-        hasChanges = true;
-    }
-}
-
-if (hasChanges) {
-    await DataManager.saveBooks(books);
-}

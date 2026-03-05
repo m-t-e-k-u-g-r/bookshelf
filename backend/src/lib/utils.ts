@@ -1,5 +1,4 @@
 import ISBN from 'isbn3';
-import type { Book } from "./dataManager.js";
 import type { Book as dbBook } from "./dbDataManager.js";
 
 export interface APIResponse {
@@ -32,18 +31,6 @@ export enum SortBy {
 export enum SortOrder {
     ASC = 'asc',
     DESC = 'desc'
-}
-
-export function sort(books: Book[], sortBy: SortBy, order: SortOrder): Book[] {
-    return [...books].sort((a: Book, b: Book) => {
-        const valA = String(a[sortBy] || '');
-        const valB = String(b[sortBy] || '');
-        if (order === SortOrder.ASC) {
-            return valA.localeCompare(valB);
-        } else {
-            return valB.localeCompare(valA);
-        }
-    });
 }
 
 export function sortDb(books: dbBook[], sortBy: SortBy, order: SortOrder): dbBook[] {
@@ -79,15 +66,6 @@ export function formatISBN(rawIsbn: string): string | undefined {
 
 export function cleanIsbn(isbn: string): string {
     return isbn.replace(/-/g, '');
-}
-
-export async function addBook(isbn: string, books: Book[]): Promise<APIResponse> {
-    const entry: Book | undefined = books.find((e: Book) => e.isbn == isbn);
-    const response: APIResponse = await getBook(isbn);
-    if (!entry) {
-        return { status: 201, data: response.data };
-    }
-    return { status: 204 };
 }
 
 export async function getBook(isbn: string): Promise<APIResponse> {
