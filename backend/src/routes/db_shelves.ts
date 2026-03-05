@@ -52,7 +52,16 @@ router.route('/sidebar').get(async (req: Request, res: Response) => {
     }
 });
 
-router.route('/:isbn').get(async (req: Request, res: Response) => {
+router.route('/names').get(async (req: Request, res: Response) => {
+    try {
+        const response: string[] = await db.getShelfNames();
+        return res.status(200).send(response);
+    }  catch (e) {
+        return res.status(500).json({error: 'Failed to get shelf names'});
+    }
+});
+
+router.route('/b/:isbn').get(async (req: Request, res: Response) => {
     // #swagger.tags = ['DB Shelves']
     const isbn = req.params.isbn;
     if (typeof isbn !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
