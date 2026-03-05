@@ -16,7 +16,7 @@ export const useAppContext = () => {
     return context;
 }
 
-export type SortKey = 'title' | 'author' | 'isbn' | 'publish_date';
+export type SortKey = 'title' | 'author' | 'isbn';
 export default function App() {
     const [books, setBooks] = useState<BookProps[]>([]);
     const [isLoading, setIsLoading] = useState(true);
