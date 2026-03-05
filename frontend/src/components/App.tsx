@@ -30,7 +30,7 @@ export default function App() {
     }
 
     const fetchData = async () => {
-        const [booksRes, shelvesRes, sidebarRes]: [BookProps[], Record<string, string[]>, SidebarProps[]] = await Promise.all([
+        const [booksRes, shelvesRes, sidebarRes]: [BookProps[], BooksWithShelves[], SidebarProps[]] = await Promise.all([
             getBooks(),
             getShelvedBooks(),
             getSidebarData()
