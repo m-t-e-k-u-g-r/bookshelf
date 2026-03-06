@@ -1,0 +1,35 @@
+services:
+  db:
+    image: mariadb:latest
+    container_name: database
+    env_file:
+      - .env
+    environment:
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+    volumes:
+      - data:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d
+    ports:
+      - '3306:3306'
+
+  server:
+    container_name: server
+    build: .
+    ports:
+      - '5500:5500'
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      MARIADB_HOST: db
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+    depends_on:
+      - db
+
+volumes:
+  data:
