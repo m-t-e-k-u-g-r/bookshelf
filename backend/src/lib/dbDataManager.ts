@@ -168,16 +168,18 @@ export class DbDataManager {
     static async getShelvesOfBook(isbn: string): Promise<string[] | undefined> {
         const pool: Pool = await getPool();
         try {
-            const result = pool.query(`
+            const result = await pool.query(`
                 SELECT iis.name AS shelf
                 FROM isbns_in_shelves iis
                 WHERE iis.isbn = ?
                 `, [isbn]
             );
-            if (!Array.isArray(result) || result.length === 0) {
-                return undefined;
+            const rows: string[] = Array.isArray(result) ? result : [result];
+            console.log(rows);
+            if (rows.length === 0) {
+                return [];
             }
-            return result.map((row: { shelf: string }) => row.shelf);
+            return rows.map(row=> row.shelf);
         } catch (e) {
             throw e;
         }

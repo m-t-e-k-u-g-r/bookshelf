@@ -49,7 +49,9 @@ export async function getShelvesOfBook(isbn: string) {
     try {
         const response: Response = await fetch(SHELVES_API_URL + 'b/' + isbn);
         return await response.json();
-    } catch (e) {
+    } catch (e: any) {
+        if (e.status === 404) return [];
+        console.error('Error while fetching shelves of book:', e);
     }
 }
 
