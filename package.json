@@ -8,15 +8,22 @@
     "frontend"
   ],
   "scripts": {
-    "docker:build": "docker compose -f ./db/docker-compose.yml up -d",
-    "docker:start": "dotenv -- cmd /c \"docker start %DB_CONTAINER%\"",
-    "docker:stop": "dotenv -- cmd /c \"docker stop %DB_CONTAINER%\"",
+    "docker:stack": "docker compose up --build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+
+    "docker:db": "docker compose up -d db",
+    "docker:db:stop": "docker compose stop db",
+    "docker:db:reset": "docker compose down -v && docker compose up -d db",
+
     "backend:dev": "npm run dev --workspace=backend",
     "backend:build": "npm run build --workspace=backend",
+
     "frontend:dev": "npm run dev --workspace=frontend",
     "frontend:build": "npm run build --workspace=frontend",
+
     "build": "npm run build --workspaces",
-    "dev": "npm run docker:start && concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "dev": "npm run docker:start && concurrently -k \"npm run backend:dev\" \"npm run frontend:dev\"",
     "prestart": "node dist/backend/swagger/swagger.js",
     "start": "node dist/backend/server.js"
   },
