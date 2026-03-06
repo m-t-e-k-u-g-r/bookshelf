@@ -47,6 +47,10 @@ export interface BookInShelf extends Book {
     shelf: string;
 }
 
+export interface ShelfOfBook {
+    shelf: string;
+}
+
 export type ISBNList = string[]
 
 export interface SidebarData {
@@ -168,18 +172,18 @@ export class DbDataManager {
     static async getShelvesOfBook(isbn: string): Promise<string[] | undefined> {
         const pool: Pool = await getPool();
         try {
-            const result = await pool.query(`
+            const result: ShelfOfBook[] = await pool.query<ShelfOfBook[]>(`
                 SELECT iis.name AS shelf
                 FROM isbns_in_shelves iis
                 WHERE iis.isbn = ?
                 `, [isbn]
             );
-            const rows: string[] = Array.isArray(result) ? result : [result];
+            const rows: ShelfOfBook[] = Array.isArray(result) ? result : [result];
             console.log(rows);
             if (rows.length === 0) {
                 return [];
             }
-            return rows.map(row=> row.shelf);
+            return rows.map((row: ShelfOfBook)=> row.shelf);
         } catch (e) {
             throw e;
         }
