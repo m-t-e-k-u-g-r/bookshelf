@@ -2,7 +2,7 @@ import {toast} from "react-toastify";
 import type {BookProps} from "./components/Book";
 import {isOnlyWhitespace} from "./lib/utils";
 
-export const API_URL: string = 'http://localhost:5500/';
+export const API_URL: string = 'http://localhost:5500/api/';
 export const DB_API_URL: string = API_URL + 'db/';
 export const BOOKS_API_URL: string = DB_API_URL + 'books/';
 export const SHELVES_API_URL: string = DB_API_URL + 'shelves/';
