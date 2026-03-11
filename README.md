@@ -76,6 +76,7 @@ Check out `http://localhost:5500/swagger-docs` for swagger API documentation
 
 ### Frontend
 **Component diagram**
+To view the rendered diagram, open `frontend/docs/frontend_component_diagram.svg` or copy and paste the following code into [PlantUML](https://plantuml.com/):
 ```plantuml
   @startuml
   !theme spacelab

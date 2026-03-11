@@ -1,0 +1,54 @@
+  @startuml
+  !theme spacelab
+  skinparam  backgroundColor #242424
+
+  title Bookshelf Frontend - Component diagram
+
+  package "Frontend Application" {
+    component [index.tsx] as Index <<Entry Point>>
+    component [App.tsx] as App <<Main Container>>
+
+    package "Components" {
+        component [Nav.tsx] as Nav
+        component [Sidebar.tsx] as Sidebar
+        component [Shelf.tsx] as Shelf
+        component [Book.tsx] as Book
+        component [KebabMenu.tsx] as KebabMenu
+        component [CustomButton.tsx] as CustomButton
+        component [CombinedInput.tsx] as CombinedInput
+    }
+
+    component [dbDataHandler.ts] as DataHandler <<Config/API>>
+  }
+
+  database "Backend API" as API {
+    [Books API]
+    [Shelves API]
+  }
+
+  ' Hierarchy and data flow
+  Index --> App : renders
+  App --> Nav : includes
+  App --> Sidebar : includes
+  App --> Shelf : includes
+
+  Sidebar --> KebabMenu : uses
+  Nav --> CustomButton : uses
+  Nav --> CombinedInput : uses
+  Shelf --> Book : renders many
+  Book --> KebabMenu : uses
+
+  ' API interactions
+  App ..> DataHandler : uses URLs/Methods
+  Book ..> DataHandler : uses Methods
+  Sidebar ..> DataHandler : uses Methods
+  Nav ..> DataHandler : uses Methods
+  CombinedInput ..> DataHandler : uses Methods
+  DataHandler ..> [Books API] : fetch books
+  DataHandler ..> [Shelves API] : fetch shelves
+
+  DataHandler ..> [Shelves API] : create/delete/rename
+  DataHandler ..> [Books API] : delete book
+  DataHandler ..> [Shelves API] : update shelf assignment
+
+  @enduml
