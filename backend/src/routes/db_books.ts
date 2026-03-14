@@ -36,6 +36,9 @@ router.route('/')
 router.route('/batch').post(async (req: Request, res: Response) => {
     // #swagger.tags = ['DB Books']
     const isbns: string[] = req.body.isbns;
+    if (!Array.isArray(isbns) || isbns.length == 0) {
+        return res.status(400).json({ error: 'Invalid request body' });
+    }
     let booksToAdd: Book[] = [];
     let added: number = 0;
     const cleanIsbns: string[] = isbns
