@@ -3,6 +3,7 @@ import { type Router, type Request, type Response } from "express";
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import dbRouter from "./db_router.js";
+import authRouter from "./auth_router.js";
 import { DbDataManager as db} from "../lib/dbDataManager.js";
 import swaggerUi from 'swagger-ui-express';
 const swaggerPath = new URL('../swagger/swagger.json', import.meta.url);
@@ -19,6 +20,7 @@ router.get('/isbn-h', async (req: Request, res: Response) => {
     res.send(await db.getFormatedISBNs());
 })
 router.use('/db', dbRouter);
+router.use('/auth', authRouter);
 router.use('/swagger-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 export default router;

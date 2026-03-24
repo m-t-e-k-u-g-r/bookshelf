@@ -1,0 +1,134 @@
+import express from "express";
+import { type Router, type Request, type Response } from "express";
+import {DbDataManager as db} from "../lib/dbDataManager.js";
+import bcrypt from 'bcrypt';
+import jwt, {type JwtPayload} from 'jsonwebtoken';
+import { SqlError } from 'mariadb';
+
+const router: Router = express.Router();
+
+async function generateRefreshToken(id: number) {
+    const jti = crypto.randomUUID();
+    const userId = String(id);
+    if (process.env.REFRESH_TOKEN_SECRET == undefined) return null;
+    const refreshToken = jwt.sign(userId, process.env.REFRESH_TOKEN_SECRET, {
+        jwtid: jti,
+        expiresIn: '1d'
+    });
+
+    try {
+        await db.addRefreshToken(id, jti);
+    } catch (e) {
+        return null;
+    }
+    return refreshToken;
+}
+
+function generateAccessToken(id: string) {
+    if (process.env.ACCESS_TOKEN_SECRET == undefined) return null;
+    return jwt.sign(id, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '10m'
+    });
+}
+
+function checkPassword(password: string, password_hash: string) {
+    return bcrypt.compare(password, password_hash);
+}
+
+router.route('/signup')
+    .post(async (req: Request, res: Response) => {
+        const email: string = req.body.email;
+        const password: string = req.body.password;
+        if (email == undefined || password == undefined) return res.status(400).json({error: 'Invalid request body'});
+
+        const hash: string = await bcrypt.hash(password, 12);
+
+        try {
+            await db.signupUser(email, hash);
+
+            const entry = await db.getUser(email);
+            if (entry == null) return res.sendStatus(500);
+            const id = entry.id;
+
+            const refreshToken = await generateRefreshToken(id);
+            if (refreshToken == null) return res.sendStatus(500);
+
+            return res.status(201).json({ refreshToken: refreshToken });
+        } catch (error) {
+            if (isSqlError(error) && error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({error: 'User already exists'});
+            }
+            console.log('Signup failed', error);
+            return res.status(500).json({error: 'Failed to signup user'});
+        }
+    });
+
+router.route('/login')
+    .post(async (req: Request, res: Response) => {
+        const email: string = req.body.email;
+        const password: string = req.body.password;
+        if (email == undefined || password == undefined) return res.status(400).json({error: 'Invalid request body'});
+
+        try {
+            const entry = await db.getUser(email);
+            if (entry == null) return res.status(404).json({error: 'User not found'});
+
+            const correct = await checkPassword(password, entry.password_hash);
+            if (!correct) return res.status(403).json({error: 'Invalid credentials'});
+
+            const refreshToken = await generateRefreshToken(entry.id);
+            if (refreshToken == null) return res.sendStatus(500);
+
+            return res.status(200).json({ refreshToken: refreshToken });
+        } catch (e) {
+            console.log('Login failed', e);
+            return res.status(500).json({error: `Failed to login user`});
+        }
+    });
+
+router.route('/refresh')
+    .post(async (req: Request, res: Response) => {
+        const refreshToken: string = req.body.refreshToken;
+        if (refreshToken == undefined) return res.status(401).json({error: 'No refresh token provided'});
+
+        try {
+            if (process.env.REFRESH_TOKEN_SECRET == undefined) return res.status(500).json({error: 'Refresh token secret not set'});
+            const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+            if (typeof decoded === 'string') return res.status(403).json({error: 'Invalid refresh token'});
+            const { jti, userId } = decoded as JwtPayload;
+
+            if (!jti || !userId) return res.status(403).json({error: 'Malformed token'});
+
+            const newAccessToken = generateAccessToken(userId);
+            return res.status(200).json({ accessToken: newAccessToken });
+        } catch (e) {
+            return res.status(403).json({error: 'Failed to verify refresh token'});
+        }
+    });
+
+router.route('/logout')
+    .delete(async (req: Request, res: Response) => {
+        const refreshToken: string = req.body.refreshToken;
+
+        if (refreshToken == undefined) return res.status(401).json({error: 'No refresh token provided'});
+        if (process.env.REFRESH_TOKEN_SECRET == undefined) return res.status(500).json({error: 'Refresh token secret not set'});
+
+        try {
+            const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+            if (typeof decoded === 'string') return res.status(403).json({error: 'Invalid refresh token'});
+            const jti = decoded.jti;
+            if (!jti) return res.status(403).json({error: 'Malformed token'});
+
+            await db.revokeRefreshToken(jti);
+            return res.sendStatus(204);
+        } catch (e) {
+            return res.status(500).json({error: 'Failed to log out user'});
+        }
+    });
+
+function isSqlError(err: unknown): err is SqlError {
+    return typeof err === 'object' && err !== null && 'code' in err;
+}
+
+export default router;

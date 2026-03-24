@@ -59,6 +59,75 @@ export interface SidebarData {
 }
 
 export class DbDataManager {
+    static async signupUser(email: string, password_hash: string) {
+        try {
+            const pool: Pool = await getPool();
+            return await pool.query(`
+                INSERT INTO users (email, password_hash)
+                VALUES (?, ?)
+                `, [email, password_hash]
+            );
+        } catch (e) {
+            throw e;
+        }
+    }
+    static async addRefreshToken(userId: number, jti: string) {
+        try {
+            const pool: Pool = await getPool();
+            return await pool.query(`
+                INSERT INTO refresh_tokens (user_idfk, jti, expires_at)
+                VALUES (?, ?, NOW() + INTERVAL 1 DAY)
+                `, [userId, jti]
+            );
+        } catch (e) {
+            throw e;
+        }
+    }
+    static async getRefreshTokenByJti(jti: string) {
+        try {
+            const pool: Pool = await getPool();
+            const result = await pool.query(`
+                SELECT * FROM refresh_tokens
+                WHERE jti = ? AND revoked = 0
+                `, [jti]
+            );
+            if (result.length === 0) {
+                return null;
+            }
+            return result[0];
+        } catch (e) {
+            throw e;
+        }
+    }
+    static async revokeRefreshToken(jti: string) {
+        try {
+            const pool: Pool = await getPool();
+            return await pool.query(`
+                UPDATE refresh_tokens
+                SET revoked = 1
+                WHERE jti = ?
+                `, [jti]
+            );
+        } catch (e) {
+            throw e;
+        }
+    }
+    static async getUser(email: string) {
+        try {
+            const pool: Pool = await getPool();
+            const result = await pool.query(`
+                SELECT * FROM users
+                WHERE email = ?
+                `, [email]
+            );
+            if (result.length === 0) {
+                return null;
+            }
+            return result[0];
+        } catch (e) {
+            throw e;
+        }
+    }
     static async getBooks(): Promise<Book[]> {
         try {
             const pool: Pool = await getPool();
@@ -173,7 +242,7 @@ export class DbDataManager {
         const pool: Pool = await getPool();
         try {
             const result: ShelfOfBook[] = await pool.query<ShelfOfBook[]>(`
-                SELECT iis.name AS shelf
+                SELECT iis.shelf AS shelf
                 FROM isbns_in_shelves iis
                 WHERE iis.isbn = ?
                 `, [isbn]
@@ -207,13 +276,13 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async addShelf(shelfName: string) {
+    static async addShelf(shelfName: string, userId: number) {
         const pool: Pool = await getPool();
         try {
             return pool.query(`
-                INSERT INTO shelves (name) 
-                VALUES (?)
-                `, [shelfName]
+                INSERT INTO shelves (name, user_id) 
+                VALUES (?, ?)
+                `, [shelfName, userId]
             );
         } catch (e) {
             throw e;
