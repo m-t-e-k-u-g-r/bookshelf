@@ -9,13 +9,12 @@ CREATE TABLE `books` (
     author VARCHAR(255) NOT NULL,
     publish_year INT NOT NULL,
     img_url VARCHAR(255),
-    completed TINYINT(1) DEFAULT 0,
     PRIMARY KEY (isbn)
 );
 
 CREATE TABLE `shelves` (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) UNIQUE NOT NULL
+    name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE `shelves_books` (
@@ -37,6 +36,7 @@ CREATE TABLE `users` (
 CREATE TABLE `user_book` (
     user_id INT NOT NULL,
     isbn VARCHAR(13) NOT NULL,
+    read_status TINYINT(1) DEFAULT 0,
     PRIMARY KEY (isbn, user_id),
     FOREIGN KEY (isbn) REFERENCES books(isbn) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -53,6 +53,7 @@ CREATE TABLE `refresh_tokens` (
 
 ALTER TABLE shelves
 ADD COLUMN `user_id` INT NOT NULL,
+ADD UNIQUE (user_id, name),
 ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 ALTER TABLE shelves_books
