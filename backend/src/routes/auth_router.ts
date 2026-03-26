@@ -42,6 +42,7 @@ function checkPassword(password: string, password_hash: string) {
 
 router.route('/signup')
     .post(async (req: Request, res: Response) => {
+        // #swagger.tags = ['Auth']
         const email: string = req.body.email;
         const password: string = req.body.password;
         if (email == undefined || password == undefined) return res.status(400).json({error: 'Invalid request body'});
@@ -70,6 +71,7 @@ router.route('/signup')
 
 router.route('/login')
     .post(async (req: Request, res: Response) => {
+        // #swagger.tags = ['Auth']
         const email: string = req.body.email;
         const password: string = req.body.password;
         if (email == undefined || password == undefined) return res.status(400).json({error: 'Invalid request body'});
@@ -93,6 +95,7 @@ router.route('/login')
 
 router.route('/refresh')
     .post(async (req: Request, res: Response) => {
+        // #swagger.tags = ['Auth']
         const refreshToken: string = req.body.refreshToken;
         if (refreshToken == undefined) return res.status(401).json({error: 'No refresh token provided'});
 
@@ -114,6 +117,7 @@ router.route('/refresh')
 
 router.route('/logout')
     .delete(async (req: Request, res: Response) => {
+        // #swagger.tags = ['Auth']
         const refreshToken: string = req.body.refreshToken;
 
         if (refreshToken == undefined) return res.status(401).json({error: 'No refresh token provided'});
@@ -134,6 +138,7 @@ router.route('/logout')
 
 router.route('/delete-acc')
     .delete(authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
+        // #swagger.tags = ['Auth']
         const userId = req.userId;
         if (!userId) return res.sendStatus(401);
         try {

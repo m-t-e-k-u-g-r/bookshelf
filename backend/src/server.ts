@@ -19,6 +19,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../../dist/frontend')));
 
 app.get('/', async (req: Request, res: Response) => {
+    // #swagger.ignore = true
     res.sendFile(path.join(__dirname, '../../dist/frontend', 'index.html'));
 });
 app.use('/api', apiRouter);

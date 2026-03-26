@@ -6,6 +6,9 @@ const doc: object = {
     },
     tags: [
         {
+            name: 'Auth'
+        },
+        {
             name: 'DB Books'
         },
         {
