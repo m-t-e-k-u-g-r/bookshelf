@@ -4,6 +4,7 @@ import {DbDataManager as db} from "../lib/dbDataManager.js";
 import bcrypt from 'bcrypt';
 import jwt, {type JwtPayload} from 'jsonwebtoken';
 import { SqlError } from 'mariadb';
+import {type AuthenticatedRequest, authMiddleware} from "../lib/utils.js";
 
 const router: Router = express.Router();
 
@@ -128,6 +129,18 @@ router.route('/logout')
             return res.sendStatus(204);
         } catch (e) {
             return res.status(500).json({error: 'Failed to log out user'});
+        }
+    });
+
+router.route('/delete-acc')
+    .delete(authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
+        const userId = req.userId;
+        if (!userId) return res.sendStatus(401);
+        try {
+            await db.deleteUser(userId);
+            return res.sendStatus(204);
+        } catch (e) {
+            return res.status(500).json({error: 'Failed to delete account'});
         }
     });
 

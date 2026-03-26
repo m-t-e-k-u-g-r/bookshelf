@@ -74,6 +74,18 @@ export class DbDataManager {
             throw e;
         }
     }
+    static async deleteUser(userId: number) {
+        try {
+            const pool: Pool = await getPool();
+            return await pool.query(`
+                DELETE FROM users
+                WHERE id = ?
+                `, [userId]
+            );
+        } catch (e) {
+            throw e;
+        }
+    }
     static async addRefreshToken(userId: number, jti: string) {
         try {
             const pool: Pool = await getPool();
