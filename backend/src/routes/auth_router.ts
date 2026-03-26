@@ -11,7 +11,9 @@ async function generateRefreshToken(id: number) {
     const jti = crypto.randomUUID();
     const userId = String(id);
     if (process.env.REFRESH_TOKEN_SECRET == undefined) return null;
-    const refreshToken = jwt.sign(userId, process.env.REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign(
+        { userId: userId },
+        process.env.REFRESH_TOKEN_SECRET, {
         jwtid: jti,
         expiresIn: '1d'
     });
@@ -26,7 +28,9 @@ async function generateRefreshToken(id: number) {
 
 function generateAccessToken(id: string) {
     if (process.env.ACCESS_TOKEN_SECRET == undefined) return null;
-    return jwt.sign(id, process.env.ACCESS_TOKEN_SECRET, {
+    return jwt.sign(
+        { userId: id },
+        process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '10m'
     });
 }
