@@ -1,10 +1,16 @@
 import ISBN from 'isbn3';
 import type { Book as dbBook } from "./dbDataManager.js";
+import jwt from "jsonwebtoken";
+import type {Request, Response as ExResponse, NextFunction} from "express";
 
 export interface APIResponse {
     status: number;
     data?: any;
     error?: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+    userId?: number;
 }
 
 interface GoogleBooksResponse {
@@ -44,6 +50,47 @@ export function sortDb(books: dbBook[], sortBy: SortBy, order: SortOrder): dbBoo
         }
     })
 }
+
+export function checkAccessToken(authHeader: string | undefined): APIResponse {
+    if (process.env.ACCESS_TOKEN_SECRET == undefined) return { status: 500 }
+    if (!authHeader) return { status: 401, error: 'No access token provided' }
+
+    let token = '';
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+    } else if (authHeader) {
+        token = authHeader;
+    }
+
+    let userId: number | undefined;
+    try {
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        userId = (decoded as { userId: number }).userId;
+        return {
+            status: 200,
+            data: {
+                userId: userId
+            }
+        }
+    } catch (err) {
+        return { status: 401 }
+    }
+}
+
+export const authMiddleware = (req: Request, res: ExResponse, next: NextFunction) => {
+    const authHeader = req.header('authorization');
+    if (!authHeader) return res.status(401).json({ error: 'No access token provided' });
+
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+    const result = checkAccessToken(token);
+
+    if (result.status === 200) {
+        (req as any).userId = result.data.userId;
+        next();
+    } else {
+        res.status(result.status).send('Invalid Token');
+    }
+};
 
 function isGoogleBooksResponse(value: GoogleBooksResponse): boolean {
     if (typeof value !== "object" || value === null) return false;
