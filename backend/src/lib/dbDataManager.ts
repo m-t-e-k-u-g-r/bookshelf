@@ -30,8 +30,7 @@ async function createPool(): Promise<Pool> {
 }
 
 export async function getPool(): Promise<Pool> {
-    const pool: Pool = await createPool();
-    return pool;
+    return await createPool();
 }
 
 export interface Book {
@@ -52,6 +51,10 @@ export interface ShelfOfBook {
 }
 
 export type ISBNList = string[]
+
+type isbnObject = {
+    isbn: string;
+}
 
 export interface SidebarData {
     name: string;
@@ -128,10 +131,22 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async getBooks(): Promise<Book[]> {
+    static async getBooks(userId: number): Promise<Book[]> {
         try {
             const pool: Pool = await getPool();
-            return await pool.query(`SELECT * FROM books`);
+            const isbnList: isbnObject[] = await pool.query(`
+                SELECT isbn FROM user_book
+                WHERE user_id = ?
+                `, [userId]
+            );
+            const isbnArray = isbnList.map(r => r.isbn);
+            if (isbnArray.length === 0) return [];
+            const placeholders = isbnArray.map(() => '?').join(',');
+            return await pool.query(`
+                SELECT * FROM books
+                WHERE isbn IN (${placeholders})
+                `, isbnArray
+            );
         } catch (e) {
             throw e;
         }

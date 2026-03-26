@@ -2,6 +2,7 @@ import express from 'express';
 import { type Router, type Request, type Response } from "express";
 import { DbDataManager as db, type Book } from '../lib/dbDataManager.js';
 import {sortDb, SortBy, SortOrder, cleanIsbn, formatISBN, type APIResponse, getBook} from '../lib/utils.js';
+import jwt from "jsonwebtoken";
 
 const router: Router = express.Router();
 
@@ -10,7 +11,18 @@ router.route('/')
         // #swagger.tags = ['DB Books']
         // #swagger.parameters['sortBy'] = { $ref: '#/components/parameters/SortByParam' }
         // #swagger.parameters['order'] = { $ref: '#/components/parameters/OrderParam' }
-        const books: Book[] = await db.getBooks();
+        if (process.env.ACCESS_TOKEN_SECRET == undefined) return res.status(500).json({error: 'Access token secret not set'});
+        const accessToken = req.body?.accessToken;
+
+        let userId: number | undefined;
+        try {
+            const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+            userId = (decoded as { userId: number }).userId;
+        } catch (err) {
+            return res.status(401).json({ error: 'Invalid access token' });
+        }
+
+        const books: Book[] = await db.getBooks(userId);
         let { sortBy, order, hide } = req.query;
 
         if (!Object.values(SortBy).includes(sortBy as SortBy)) {
