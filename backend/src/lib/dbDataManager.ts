@@ -30,8 +30,7 @@ async function createPool(): Promise<Pool> {
 }
 
 export async function getPool(): Promise<Pool> {
-    const pool: Pool = await createPool();
-    return pool;
+    return await createPool();
 }
 
 export interface Book {
@@ -53,6 +52,10 @@ export interface ShelfOfBook {
 
 export type ISBNList = string[]
 
+type isbnObject = {
+    isbn: string;
+}
+
 export interface SidebarData {
     name: string;
     count: number;
@@ -66,6 +69,18 @@ export class DbDataManager {
                 INSERT INTO users (email, password_hash)
                 VALUES (?, ?)
                 `, [email, password_hash]
+            );
+        } catch (e) {
+            throw e;
+        }
+    }
+    static async deleteUser(userId: number) {
+        try {
+            const pool: Pool = await getPool();
+            return await pool.query(`
+                DELETE FROM users
+                WHERE id = ?
+                `, [userId]
             );
         } catch (e) {
             throw e;
@@ -128,10 +143,22 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async getBooks(): Promise<Book[]> {
+    static async getBooks(userId: number): Promise<Book[]> {
         try {
             const pool: Pool = await getPool();
-            return await pool.query(`SELECT * FROM books`);
+            const isbnList: isbnObject[] = await pool.query(`
+                SELECT isbn FROM user_book
+                WHERE user_id = ?
+                `, [userId]
+            );
+            const isbnArray = isbnList.map(r => r.isbn);
+            if (isbnArray.length === 0) return [];
+            const placeholders = isbnArray.map(() => '?').join(',');
+            return await pool.query(`
+                SELECT * FROM books
+                WHERE isbn IN (${placeholders})
+                `, isbnArray
+            );
         } catch (e) {
             throw e;
         }
@@ -164,6 +191,18 @@ export class DbDataManager {
             if (e.errno === 1062) {
                 throw new Error('BOOK_ALREADY_EXISTS');
             }
+            throw e;
+        }
+    }
+    static async assignBook(isbn: string, userId: number) {
+        const pool: Pool = await getPool();
+        try {
+            await pool.query(`
+                INSERT INTO user_book (user_id, isbn)
+                VALUES (?, ?)
+                `, [userId, isbn]
+            );
+        } catch (e) {
             throw e;
         }
     }
@@ -203,6 +242,18 @@ export class DbDataManager {
             throw e;
         }
     }
+    static async unassignBook(isbn: string, userId: number) {
+        const pool: Pool = await getPool();
+        try {
+            return pool.query(`
+                DELETE FROM user_book
+                WHERE isbn = ? AND user_id = ?
+                `, [isbn, userId]
+            );
+        } catch (e) {
+            throw e;
+        }
+    }
     static async getISBNs(): Promise<ISBNList> {
         const pool: Pool = await getPool();
         try {
@@ -221,31 +272,39 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async getShelfNames(): Promise<string[]> {
+    static async getShelfNames(userId: number): Promise<string[]> {
         const pool: Pool = await getPool();
         try {
-            const result = await pool.query(`SELECT name FROM shelves`);
+            const result = await pool.query(`
+                SELECT name FROM shelves
+                WHERE user_id = ?
+                `, [userId]
+            );
             return result.map((row: { name: string }) => row.name);
         } catch (e) {
             throw e;
         }
     }
-    static async getShelvesWithBooks(): Promise<BookInShelf[]> {
+    static async getShelvesWithBooks(userId: number): Promise<BookInShelf[]> {
         const pool: Pool = await getPool();
         try {
-            return pool.query(`SELECT * FROM books_in_shelves`);
+            return pool.query(`
+                SELECT * FROM books_in_shelves
+                WHERE user_id = ?
+                `, [userId]
+            );
         } catch (e) {
             throw e;
         }
     }
-    static async getShelvesOfBook(isbn: string): Promise<string[] | undefined> {
+    static async getShelvesOfBook(isbn: string, userId: number): Promise<string[] | undefined> {
         const pool: Pool = await getPool();
         try {
             const result: ShelfOfBook[] = await pool.query<ShelfOfBook[]>(`
                 SELECT iis.shelf AS shelf
                 FROM isbns_in_shelves iis
-                WHERE iis.isbn = ?
-                `, [isbn]
+                WHERE iis.isbn = ? AND iis.user_id = ?
+                `, [isbn, userId]
             );
             const rows: ShelfOfBook[] = Array.isArray(result) ? result : [result];
             console.log(rows);
@@ -257,21 +316,26 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async getBooksByShelf(shelfName: string): Promise<BookInShelf[]> {
+    static async getBooksByShelf(shelfName: string, userId: number): Promise<BookInShelf[]> {
         const pool: Pool = await getPool();
         try {
             return pool.query(`
-            SELECT * FROM books_in_shelves
-            WHERE shelf = ?
-            `, [shelfName])
+                SELECT * FROM books_in_shelves
+                WHERE shelf = ? AND user_id = ?
+                `, [shelfName, userId]
+            )
         } catch (e) {
             throw e;
         }
     }
-    static async getSidebarData(): Promise<SidebarData[]> {
+    static async getSidebarData(userId: number): Promise<SidebarData[]> {
         const pool: Pool = await getPool();
         try {
-            return pool.query(`SELECT * FROM sidebar_data`);
+            return pool.query(`
+                SELECT sd.* FROM sidebar_data sd
+                WHERE sd.user_id = ?
+                `, [userId]
+            );
         } catch (e) {
             throw e;
         }
@@ -288,32 +352,32 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async updateShelfName(oldName: string, newName: string) {
+    static async updateShelfName(oldName: string, newName: string, userId: number) {
         const pool: Pool = await getPool();
         try {
             return pool.query(`
                 UPDATE shelves 
                 SET name = ?
-                WHERE name = ?
-                `, [newName, oldName]
+                WHERE name = ? AND user_id = ?
+                `, [newName, oldName, userId]
             );
         } catch (e) {
             throw e;
         }
     }
-    static async deleteShelf(shelfName: string) {
+    static async deleteShelf(shelfName: string, userId: number) {
         const pool: Pool = await getPool();
         try {
             return pool.query(`
                 DELETE FROM shelves 
-                WHERE name = ?
-                `, [shelfName]
+                WHERE name = ? AND user_id = ?
+                `, [shelfName, userId]
             )
         } catch (e) {
             throw e;
         }
     }
-    static async editShelvesOfBook(isbn: string, shelves: string[]) {
+    static async editShelvesOfBook(isbn: string, shelves: string[], userId: number) {
         const pool: Pool = await getPool();
         const connection: PoolConnection = await pool.getConnection();
         try {
@@ -326,7 +390,11 @@ export class DbDataManager {
             );
 
             for (const shelf of shelves) {
-                const [rows] = await connection.query(`SELECT id FROM shelves WHERE name = ?`, [shelf]);
+                const [rows] = await connection.query(`
+                    SELECT id FROM shelves
+                    WHERE name = ? AND user_id = ?
+                    `, [shelf, userId]
+                );
                 const shelfId: number = rows.id;
                 await connection.query(`
                     INSERT INTO shelves_books (shelf_id, book_isbn) 

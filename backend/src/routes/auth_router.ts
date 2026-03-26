@@ -4,6 +4,7 @@ import {DbDataManager as db} from "../lib/dbDataManager.js";
 import bcrypt from 'bcrypt';
 import jwt, {type JwtPayload} from 'jsonwebtoken';
 import { SqlError } from 'mariadb';
+import {type AuthenticatedRequest, authMiddleware} from "../lib/utils.js";
 
 const router: Router = express.Router();
 
@@ -11,7 +12,9 @@ async function generateRefreshToken(id: number) {
     const jti = crypto.randomUUID();
     const userId = String(id);
     if (process.env.REFRESH_TOKEN_SECRET == undefined) return null;
-    const refreshToken = jwt.sign(userId, process.env.REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign(
+        { userId: userId },
+        process.env.REFRESH_TOKEN_SECRET, {
         jwtid: jti,
         expiresIn: '1d'
     });
@@ -26,7 +29,9 @@ async function generateRefreshToken(id: number) {
 
 function generateAccessToken(id: string) {
     if (process.env.ACCESS_TOKEN_SECRET == undefined) return null;
-    return jwt.sign(id, process.env.ACCESS_TOKEN_SECRET, {
+    return jwt.sign(
+        { userId: id },
+        process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '10m'
     });
 }
@@ -124,6 +129,18 @@ router.route('/logout')
             return res.sendStatus(204);
         } catch (e) {
             return res.status(500).json({error: 'Failed to log out user'});
+        }
+    });
+
+router.route('/delete-acc')
+    .delete(authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
+        const userId = req.userId;
+        if (!userId) return res.sendStatus(401);
+        try {
+            await db.deleteUser(userId);
+            return res.sendStatus(204);
+        } catch (e) {
+            return res.status(500).json({error: 'Failed to delete account'});
         }
     });
 
