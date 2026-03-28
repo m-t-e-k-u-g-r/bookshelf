@@ -182,7 +182,7 @@ export class DbDataManager {
     static async getBookByISBN(isbn: string): Promise<Book | undefined> {
         try {
             const pool: Pool = await getPool();
-            const result = pool.query(`
+            const result = await pool.query(`
                 SELECT * FROM books 
                 WHERE isbn = ?
                 `, [isbn]

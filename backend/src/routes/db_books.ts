@@ -123,8 +123,8 @@ router.route('/:isbn')
 
         const validISBN: string | undefined = formatISBN(isbn);
         if (validISBN == undefined) return res.status(400).json({error: 'Invalid ISBN'});
-
-        const db_entry = await db.getBookByISBN(validISBN);
+        const cleanISBN = cleanIsbn(validISBN);
+        const db_entry = await db.getBookByISBN(cleanISBN);
         if (db_entry == undefined) {
             const response: APIResponse = await getBook(validISBN);
             if (response.status !== 200) {
@@ -140,12 +140,11 @@ router.route('/:isbn')
             } catch (e: any) {
                 return res.status(500).json({ error: 'Failed to add book' });
             }
-        } else {
-            try {
-                await db.assignBook(validISBN, userId)
-            } catch (e) {
-                return res.status(500).json({ error: 'Failed to add book' });
-            }
+        }
+        try {
+            await db.assignBook(cleanISBN, userId)
+        } catch (e) {
+            return res.status(500).json({ error: 'Failed to add book' });
         }
     })
     .delete(async (req: AuthenticatedRequest, res: Response) => {
