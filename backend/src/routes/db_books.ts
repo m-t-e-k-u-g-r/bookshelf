@@ -49,7 +49,7 @@ router.route('/')
 
 router.route('/batch').post(async (req: AuthenticatedRequest, res: Response) => {
     // #swagger.tags = ['DB Books']
-    const userId = req.body.userId;
+    const userId = req.userId;
     if (typeof userId !== "number") return res.status(400).json({error: 'Invalid user ID'});
     const isbns: string[] = req.body.isbns;
     if (!Array.isArray(isbns) || isbns.length == 0) {

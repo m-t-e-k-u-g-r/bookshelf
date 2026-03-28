@@ -5,8 +5,16 @@ import bcrypt from 'bcrypt';
 import jwt, {type JwtPayload} from 'jsonwebtoken';
 import { SqlError } from 'mariadb';
 import {type AuthenticatedRequest, authMiddleware} from "../lib/utils.js";
+import zxcvbn from 'zxcvbn';
+import { rateLimit } from 'express-rate-limit';
 
 const router: Router = express.Router();
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    message: { error: 'To many request. Please try again later.' }
+})
 
 async function generateRefreshToken(id: number) {
     const jti = crypto.randomUUID();
@@ -41,11 +49,20 @@ function checkPassword(password: string, password_hash: string) {
 }
 
 router.route('/signup')
-    .post(async (req: Request, res: Response) => {
+    .post(limiter, async (req: Request, res: Response) => {
         // #swagger.tags = ['Auth']
         const email: string = req.body.email;
         const password: string = req.body.password;
         if (email == undefined || password == undefined) return res.status(400).json({error: 'Invalid request body'});
+
+        const pwd_check = zxcvbn(password);
+        if (pwd_check.score < 3 || (pwd_check.crack_times_seconds.offline_slow_hashing_1e4_per_second as number) < 1e6) {
+            return res.status(400).json({
+                error: 'Password is too weak',
+                warning: pwd_check.feedback.warning,
+                suggestions: pwd_check.feedback.suggestions
+            });
+        }
 
         const hash: string = await bcrypt.hash(password, 12);
 
@@ -59,6 +76,7 @@ router.route('/signup')
             const refreshToken = await generateRefreshToken(id);
             if (refreshToken == null) return res.sendStatus(500);
 
+            res.setHeader('Cookie', refreshToken)
             return res.status(201).json({ refreshToken: refreshToken });
         } catch (error) {
             if (isSqlError(error) && error.code === 'ER_DUP_ENTRY') {
@@ -70,7 +88,7 @@ router.route('/signup')
     });
 
 router.route('/login')
-    .post(async (req: Request, res: Response) => {
+    .post(limiter, async (req: Request, res: Response) => {
         // #swagger.tags = ['Auth']
         const email: string = req.body.email;
         const password: string = req.body.password;
@@ -78,14 +96,15 @@ router.route('/login')
 
         try {
             const entry = await db.getUser(email);
-            if (entry == null) return res.status(404).json({error: 'User not found'});
+            if (entry == null) return res.status(401).json({error: 'Invalid credentials'});
 
             const correct = await checkPassword(password, entry.password_hash);
-            if (!correct) return res.status(403).json({error: 'Invalid credentials'});
+            if (!correct) return res.status(401).json({error: 'Invalid credentials'});
 
             const refreshToken = await generateRefreshToken(entry.id);
             if (refreshToken == null) return res.sendStatus(500);
 
+            res.setHeader('Cookie', refreshToken);
             return res.status(200).json({ refreshToken: refreshToken });
         } catch (e) {
             console.log('Login failed', e);
@@ -107,6 +126,8 @@ router.route('/refresh')
             const { jti, userId } = decoded as JwtPayload;
 
             if (!jti || !userId) return res.status(403).json({error: 'Malformed token'});
+            const db_token = await db.getRefreshTokenByJti(jti);
+            if (typeof db_token !== 'string') return res.status(403).json({error: 'Invalid refresh token'});
 
             const newAccessToken = generateAccessToken(userId);
             return res.status(200).json({ accessToken: newAccessToken });

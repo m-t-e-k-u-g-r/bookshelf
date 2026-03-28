@@ -3,6 +3,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const __dirname: string = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../.env')});
+const requiredEnv = ['ACCESS_TOKEN_SECRET', 'REFRESH_TOKEN_SECRET', 'MARIADB_USER', 'MARIADB_PASSWORD', 'MARIADB_DATABASE'];
+const missingEnv = requiredEnv.filter(env => !process.env[env]);
+if (missingEnv.length > 0) {
+    console.error(`Missing environment variables: ${missingEnv.join(', ')}`);
+    process.exit(1);
+}
 import express, {type Express} from 'express';
 import { type Request, type Response } from 'express';
 import cors from 'cors';
