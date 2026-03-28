@@ -114,14 +114,14 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async revokeRefreshToken(jti: string) {
+    static async revokeRefreshTokens(userId: number) {
         try {
             const pool: Pool = await getPool();
             return await pool.query(`
                 UPDATE refresh_tokens
                 SET revoked = 1
-                WHERE jti = ?
-                `, [jti]
+                WHERE user_idfk = ?
+                `, [userId]
             );
         } catch (e) {
             throw e;
@@ -134,6 +134,22 @@ export class DbDataManager {
                 SELECT * FROM users
                 WHERE email = ?
                 `, [email]
+            );
+            if (result.length === 0) {
+                return null;
+            }
+            return result[0];
+        } catch (e) {
+            throw e;
+        }
+    }
+    static async getUserById(id: number) {
+        try {
+            const pool: Pool = await getPool();
+            const result = await pool.query(`
+                SELECT * FROM users
+                WHERE id = ?
+                `, [id]
             );
             if (result.length === 0) {
                 return null;

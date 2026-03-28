@@ -16,12 +16,14 @@ if (missingEnv.length > 0) {
 import express, {type Express} from 'express';
 import { type Request, type Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import apiRouter from "./routes/api_router.js";
 
 const PORT: string = process.env.PORT || '5500';
 const app: Express = express();
 
 const allowedOrigins: string[] = process.env.CORS_ORIGIN?.split(',') || [];
+app.use(cookieParser());
 app.use(cors({
     origin: allowedOrigins,
     credentials: true,

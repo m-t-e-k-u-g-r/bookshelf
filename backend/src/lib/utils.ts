@@ -81,8 +81,7 @@ export const authMiddleware = (req: Request, res: ExResponse, next: NextFunction
     const authHeader = req.header('authorization');
     if (!authHeader) return res.status(401).json({ error: 'No access token provided' });
 
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
-    const result = checkAccessToken(token);
+    const result = checkAccessToken(authHeader);
 
     if (result.status === 200) {
         (req as any).userId = result.data.userId;

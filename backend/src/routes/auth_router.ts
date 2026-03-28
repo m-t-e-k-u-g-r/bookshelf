@@ -18,10 +18,9 @@ const limiter = rateLimit({
 
 async function generateRefreshToken(id: number) {
     const jti = crypto.randomUUID();
-    const userId = String(id);
     if (process.env.REFRESH_TOKEN_SECRET == undefined) return null;
     const refreshToken = jwt.sign(
-        { userId: userId },
+        { userId: id },
         process.env.REFRESH_TOKEN_SECRET, {
         jwtid: jti,
         expiresIn: '1d'
@@ -88,8 +87,12 @@ router.route('/signup')
             const refreshToken = await generateRefreshToken(id);
             if (refreshToken == null) return res.sendStatus(500);
 
-            res.setHeader('Set-Cookie', refreshToken)
-            return res.status(201).json({ refreshToken: refreshToken });
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000
+            });
+            return res.status(201).json({ success: true });
         } catch (error) {
             if (isSqlError(error) && error.code === 'ER_DUP_ENTRY') {
                 return res.status(409).json({error: 'User already exists'});
@@ -116,8 +119,12 @@ router.route('/login')
             const refreshToken = await generateRefreshToken(entry.id);
             if (refreshToken == null) return res.sendStatus(500);
 
-            res.setHeader('Set-Cookie', refreshToken);
-            return res.status(200).json({ refreshToken: refreshToken });
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000
+            });
+            return res.status(200).json({ success: true });
         } catch (e) {
             console.log('Login failed', e);
             return res.status(500).json({error: `Failed to login user`});
@@ -127,7 +134,7 @@ router.route('/login')
 router.route('/refresh')
     .post(async (req: Request, res: Response) => {
         // #swagger.tags = ['Auth']
-        const refreshToken: string = req.body.refreshToken;
+        const refreshToken = req.cookies.refreshToken;
         if (refreshToken == undefined) return res.status(401).json({error: 'No refresh token provided'});
 
         try {
@@ -138,8 +145,8 @@ router.route('/refresh')
             const { jti, userId } = decoded as JwtPayload;
 
             if (!jti || !userId) return res.status(403).json({error: 'Malformed token'});
-            const db_token = await db.getRefreshTokenByJti(jti);
-            if (typeof db_token !== 'string') return res.status(403).json({error: 'Invalid refresh token'});
+            const db_entry = await db.getRefreshTokenByJti(jti);
+            if (!db_entry || new Date(db_entry.expires_at) < new Date()) return res.status(403).json({error: 'Invalid refresh token'});
 
             const newAccessToken = generateAccessToken(userId);
             return res.status(200).json({ accessToken: newAccessToken });
@@ -149,20 +156,14 @@ router.route('/refresh')
     });
 
 router.route('/logout')
-    .delete(async (req: Request, res: Response) => {
+    .delete(async (req: AuthenticatedRequest, res: Response) => {
         // #swagger.tags = ['Auth']
-        const refreshToken: string = req.body.refreshToken;
-
-        if (refreshToken == undefined) return res.status(401).json({error: 'No refresh token provided'});
-        if (process.env.REFRESH_TOKEN_SECRET == undefined) return res.status(500).json({error: 'Refresh token secret not set'});
+        const userId = req.userId;
+        if (!userId) return res.sendStatus(401);
 
         try {
-            const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-            if (typeof decoded === 'string') return res.status(403).json({error: 'Invalid refresh token'});
-            const jti = decoded.jti;
-            if (!jti) return res.status(403).json({error: 'Malformed token'});
-
-            await db.revokeRefreshToken(jti);
+            await db.revokeRefreshTokens(userId);
+            res.clearCookie('refreshToken');
             return res.sendStatus(204);
         } catch (e) {
             return res.status(500).json({error: 'Failed to log out user'});
