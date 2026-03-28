@@ -254,24 +254,6 @@ export class DbDataManager {
             throw e;
         }
     }
-    static async getISBNs(): Promise<ISBNList> {
-        const pool: Pool = await getPool();
-        try {
-            const result: Book[] = await pool.query(`SELECT isbn FROM books`);
-            return result.map((row: Book) => row.isbn);
-        } catch (e) {
-            throw e;
-        }
-    }
-    static async getFormatedISBNs(): Promise<ISBNList> {
-        const pool: Pool = await getPool();
-        try {
-            const result = await pool.query(`SELECT isbn_h FROM books`);
-            return result.map((row: Book) => row.isbn_h);
-        } catch (e) {
-            throw e;
-        }
-    }
     static async getShelfNames(userId: number): Promise<string[]> {
         const pool: Pool = await getPool();
         try {

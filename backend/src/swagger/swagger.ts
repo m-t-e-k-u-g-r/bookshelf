@@ -13,9 +13,6 @@ const doc: object = {
         },
         {
             name: 'DB Shelves'
-        },
-        {
-            name: 'ISBN'
         }
     ],
     host: 'localhost:5500',
