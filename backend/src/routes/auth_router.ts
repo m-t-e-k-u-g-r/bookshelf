@@ -156,7 +156,7 @@ router.route('/refresh')
     });
 
 router.route('/logout')
-    .delete(async (req: AuthenticatedRequest, res: Response) => {
+    .delete(authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
         // #swagger.tags = ['Auth']
         const userId = req.userId;
         if (!userId) return res.sendStatus(401);
