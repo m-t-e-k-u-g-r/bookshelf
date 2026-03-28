@@ -5,7 +5,7 @@
   "scripts": {
     "swagger": "tsx src/swagger/swagger.ts",
     "dev": "npm run swagger && npx tsx --watch src/server.ts",
-    "clean": "rimraf dist",
+    "clean": "rimraf ../dist",
     "prebuild": "npm run clean",
     "build": "tsc",
     "lint": "tsc --noEmit"
