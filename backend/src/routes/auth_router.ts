@@ -76,7 +76,7 @@ router.route('/signup')
             const refreshToken = await generateRefreshToken(id);
             if (refreshToken == null) return res.sendStatus(500);
 
-            res.setHeader('Cookie', refreshToken)
+            res.setHeader('Set-Cookie', refreshToken)
             return res.status(201).json({ refreshToken: refreshToken });
         } catch (error) {
             if (isSqlError(error) && error.code === 'ER_DUP_ENTRY') {
@@ -104,7 +104,7 @@ router.route('/login')
             const refreshToken = await generateRefreshToken(entry.id);
             if (refreshToken == null) return res.sendStatus(500);
 
-            res.setHeader('Cookie', refreshToken);
+            res.setHeader('Set-Cookie', refreshToken);
             return res.status(200).json({ refreshToken: refreshToken });
         } catch (e) {
             console.log('Login failed', e);
