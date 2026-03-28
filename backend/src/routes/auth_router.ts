@@ -48,6 +48,18 @@ function checkPassword(password: string, password_hash: string) {
     return bcrypt.compare(password, password_hash);
 }
 
+router.route('/me')
+    .get(authMiddleware, async (req: AuthenticatedRequest, res: Response)=> {
+        // #swagger.tags = ['Auth']
+        const userId = req.userId;
+        if (!userId) return res.sendStatus(401);
+
+        const user = await db.getUserById(userId);
+        if (!user) return res.sendStatus(401);
+
+        return res.status(200).json({ id: userId, email: user.email});
+    });
+
 router.route('/signup')
     .post(limiter, async (req: Request, res: Response) => {
         // #swagger.tags = ['Auth']
