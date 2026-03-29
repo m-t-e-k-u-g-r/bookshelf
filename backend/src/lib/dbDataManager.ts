@@ -40,6 +40,7 @@ export interface Book {
     author: string;
     publish_date: string;
     imgUrl: string;
+    read_status: number | boolean;
 }
 
 export interface BookInShelf extends Book {
@@ -48,12 +49,6 @@ export interface BookInShelf extends Book {
 
 export interface ShelfOfBook {
     shelf: string;
-}
-
-export type ISBNList = string[]
-
-type isbnObject = {
-    isbn: string;
 }
 
 export interface SidebarData {
@@ -162,18 +157,12 @@ export class DbDataManager {
     static async getBooks(userId: number): Promise<Book[]> {
         try {
             const pool: Pool = await getPool();
-            const isbnList: isbnObject[] = await pool.query(`
-                SELECT isbn FROM user_book
-                WHERE user_id = ?
-                `, [userId]
-            );
-            const isbnArray = isbnList.map(r => r.isbn);
-            if (isbnArray.length === 0) return [];
-            const placeholders = isbnArray.map(() => '?').join(',');
             return await pool.query(`
-                SELECT * FROM books
-                WHERE isbn IN (${placeholders})
-                `, isbnArray
+                SELECT b.*, ub.read_status
+                FROM books b
+                JOIN user_book ub ON b.isbn = ub.isbn
+                WHERE ub.user_id = ?;
+                `, [userId]
             );
         } catch (e) {
             throw e;

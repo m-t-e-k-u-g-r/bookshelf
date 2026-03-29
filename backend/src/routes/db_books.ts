@@ -24,9 +24,13 @@ router.route('/')
         // #swagger.parameters['order'] = { $ref: '#/components/parameters/OrderParam' }
         const userId = req.userId;
         if (!userId) return res.sendStatus(401);
-        const books: Book[] = await db.getBooks(userId);
-        let { sortBy, order, hide } = req.query;
+        let books: Book[] = await db.getBooks(userId);
+        books = books.map(b => ({
+            ...b,
+            read_status: Boolean(b.read_status)
+        }));
 
+        let { sortBy, order, hide } = req.query;
         if (!Object.values(SortBy).includes(sortBy as SortBy)) {
             sortBy = SortBy.TITLE;
         }
@@ -44,7 +48,7 @@ router.route('/')
             }
         }
 
-        return res.status(200).send(books);
+        return res.status(200).send(sortedBooks);
     });
 
 router.route('/batch').post(async (req: AuthenticatedRequest, res: Response) => {
