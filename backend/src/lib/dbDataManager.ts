@@ -370,10 +370,19 @@ export class DbDataManager {
         try {
             await connection.beginTransaction();
 
+            const [userHasBook] = await connection.query(`
+                SELECT 1 FROM user_book
+                WHERE user_id = ?
+                AND isbn = ?
+                `, [userId, isbn]
+            );
+            if (!userHasBook.length) return await connection.commit();
+
             await connection.query(`
                 DELETE FROM shelves_books 
                 WHERE book_isbn = ?
-                `, [isbn]
+                AND shelf_id IN (SELECT id FROM shelves WHERE shelves.user_id = ?)
+                `, [isbn, userId]
             );
 
             for (const shelf of shelves) {

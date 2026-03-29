@@ -19,7 +19,6 @@ CREATE TABLE `shelves` (
 
 CREATE TABLE `shelves_books` (
     shelf_id INT,
-    user_id INT,
     book_isbn VARCHAR(13),
     PRIMARY KEY (shelf_id, book_isbn),
     FOREIGN KEY (shelf_id) REFERENCES shelves(id) ON DELETE CASCADE,
@@ -55,10 +54,6 @@ ALTER TABLE shelves
 ADD COLUMN `user_id` INT NOT NULL,
 ADD UNIQUE (user_id, name),
 ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
-
-ALTER TABLE shelves_books
-ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-ADD FOREIGN KEY (user_id, book_isbn) REFERENCES user_book(user_id, isbn) ON DELETE CASCADE;
 
 CREATE VIEW `isbns_in_shelves` AS
     SELECT
