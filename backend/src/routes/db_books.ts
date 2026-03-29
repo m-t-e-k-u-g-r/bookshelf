@@ -160,7 +160,7 @@ router.route('/:isbn')
 
         try {
             await db.unassignBook(isbn, userId);
-            return res.sendStatus(204);
+            return res.status(204).json({ success: true });
         } catch (e) {
             return res.status(500).json({ error: 'Failed to delete book' });
         }

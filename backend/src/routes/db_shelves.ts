@@ -44,7 +44,7 @@ router.route('/')
 
         try {
             await db.updateShelfName(oldShelfName, newShelfName, userId);
-            return res.sendStatus(200);
+            return res.status(200).json({ success: true });
         } catch (e) {
             return res.status(500).json({error: 'Failed to update shelf name'});
         }
@@ -124,7 +124,7 @@ router.route('/:shelfName')
         if (typeof shelfName !== 'string') return res.status(400).json({error: 'Invalid shelf name'});
         try {
             await db.deleteShelf(shelfName, userId);
-            return res.sendStatus(204);
+            return res.status(204).json({ success: true });
         } catch (e) {
             return res.status(500).json({error: 'Failed to delete shelf'});
         }
