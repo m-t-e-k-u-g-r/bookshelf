@@ -29,7 +29,7 @@ router.route('/')
 
         try {
             await db.editShelvesOfBook(isbn, selectedShelvesId, userId);
-            return res.sendStatus(201);
+            return res.status(200).json({ success: true });
         } catch (e) {
             return res.status(500).json({error: 'Failed to edit shelves of book'});
         }

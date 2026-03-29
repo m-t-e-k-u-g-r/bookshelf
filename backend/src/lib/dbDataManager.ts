@@ -376,7 +376,7 @@ export class DbDataManager {
                 AND isbn = ?
                 `, [userId, isbn]
             );
-            if (!userHasBook.length) return await connection.commit();
+            if (!userHasBook) return await connection.commit();
 
             await connection.query(`
                 DELETE FROM shelves_books 
