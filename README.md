@@ -1,5 +1,11 @@
 # Bookshelf Application
 
+**Attention:**
+- `main` branch: stable version
+- `dev` branch: contains user integration in backend, frontend deprecated, not usable with user integration
+- new Angular frontend under development: Supports user integration
+  - check out [Angular frontend](https://github.com/m-t-e-k-u-g-r/bookshelf-angular)
+
 ## Stack
 - Node + Express backend
 - React frontend
