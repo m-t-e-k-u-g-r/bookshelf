@@ -1,0 +1,12 @@
+.dialog_overlay {
+  z-index: 1000;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  gap: 10px;
+  width: 250px;
+  padding: 20px;
+  background-color: var(--dialog-bg);
+  border-radius: 8px;
+}

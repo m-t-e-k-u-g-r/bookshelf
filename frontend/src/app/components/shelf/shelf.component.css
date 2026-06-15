@@ -1,0 +1,33 @@
+.shelf {
+  margin: var(--primary-spacing) auto;
+  padding: var(--primary-spacing);
+  border: solid var(--border-color) 1px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  max-width: 1400px;
+  width: 95%;
+  box-sizing: border-box;
+}
+
+h2 > a {
+  color: var(--link-color);
+}
+
+@media (min-width: 576px) {
+  .shelf {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .shelf {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .shelf {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

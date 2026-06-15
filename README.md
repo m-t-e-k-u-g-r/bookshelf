@@ -73,7 +73,3 @@ Recreate database including schema and seed data.
 Check out `http://localhost:5500/swagger-docs` for swagger API documentation
 
 *Requires swagger to be generated and backend to be running*
-
-### Frontend
-**Component diagram**
-![Component diagram](frontend/docs/frontend_component_diagram.svg)

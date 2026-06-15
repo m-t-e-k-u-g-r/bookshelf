@@ -1,0 +1,6 @@
+body {
+  padding: var(--primary-spacing);
+  font-size: var(--min-font-size);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}

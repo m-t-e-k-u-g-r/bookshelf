@@ -1,0 +1,10 @@
+.combined_input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+button {
+  width: 40%;
+}

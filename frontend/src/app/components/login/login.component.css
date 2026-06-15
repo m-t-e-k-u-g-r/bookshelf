@@ -1,0 +1,30 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 250px;
+  padding: 20px;
+  border: 1px solid var(--form-border);
+  background: var(--form-bg);
+}
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+}
+button {
+  align-self: center;
+  text-align: center;
+  padding: 6px 6px;
+  width: 60px;
+}

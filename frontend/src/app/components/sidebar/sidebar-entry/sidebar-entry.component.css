@@ -1,0 +1,36 @@
+.shelf_entry {
+  display: flex;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid var(--shelf-entry-border);
+}
+
+.shelf-menu {
+  display: none;
+}
+
+.shelf_entry:hover {
+  background-color: var(--shelf-entry-hover);
+  .count {
+    display: none;
+  }
+  .shelf-menu {
+    display: block;
+  }
+}
+
+.shelf_entry:last-child {
+  border-bottom: none;
+}
+
+.shelf_name {
+  font-weight: bold;
+}
+
+.shelf_wrapper {
+  min-width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
