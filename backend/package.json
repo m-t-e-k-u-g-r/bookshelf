@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "swagger": "tsx src/swagger/swagger.ts",
-    "dev": "npm run swagger && npx tsx --watch src/server.ts",
+    "swagger:build": "node dist/swagger/swagger.js",
+    "dev": "npm run swagger && npx tsx src/server.ts",
     "clean": "rimraf ../dist",
     "prebuild": "npm run clean",
     "build": "tsc",
