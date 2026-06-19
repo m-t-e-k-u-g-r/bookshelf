@@ -1,6 +1,10 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+
 @Component({
   selector: 'app-prompt-component',
   template: `
@@ -9,12 +13,14 @@ import {FormsModule} from '@angular/forms';
         <div class="dialog-box">
           <h2>{{ title }}</h2>
           <p>{{ message }}</p>
-          <input type="text" [(ngModel)]="inputValue"/>
+          <mat-form-field appearance="fill">
+            <input matInput type="text" [(ngModel)]="inputValue"/>
+          </mat-form-field>
           <div class="button-container">
-            <button (click)="onClick()">
+            <button mat-flat-button color="primary" (click)="onClick()">
               Submit
             </button>
-            <button (click)="handleCancel()">
+            <button mat-button (click)="handleCancel()">
               Cancel
             </button>
           </div>
@@ -22,9 +28,12 @@ import {FormsModule} from '@angular/forms';
       </div>
     }
   `,
-  styleUrl: './prompt.component.css',
+  styleUrl: './prompt.component.scss',
   imports: [
-    FormsModule
+    FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule
   ]
 })
 export class PromptComponent {

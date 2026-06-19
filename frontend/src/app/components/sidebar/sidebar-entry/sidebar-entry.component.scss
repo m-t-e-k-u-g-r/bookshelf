@@ -3,7 +3,7 @@
   padding: 0.5rem 1rem;
   text-decoration: none;
   color: inherit;
-  border-bottom: 1px solid var(--shelf-entry-border);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
 }
 
 .shelf-menu {
@@ -11,7 +11,7 @@
 }
 
 .shelf_entry:hover {
-  background-color: var(--shelf-entry-hover);
+  background-color: var(--mat-sys-surface-container-high);
   .count {
     display: none;
   }

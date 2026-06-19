@@ -3,45 +3,53 @@ import {ShelfService} from '../../services/shelf.service';
 import {SidebarEntryComponent} from '../sidebar/sidebar-entry/sidebar-entry.component';
 import {PromptComponent} from '../prompt/prompt.component';
 
+import {MatButtonModule} from '@angular/material/button';
+import {MatExpansionModule} from '@angular/material/expansion';
+
 @Component({
   selector: 'app-accordion-body',
   imports: [
     SidebarEntryComponent,
-    PromptComponent
+    PromptComponent,
+    MatButtonModule,
+    MatExpansionModule
   ],
   template: `
-    <div class="custom_accordion">
-      <div class="accordion_item">
-        <button class="accordion_header" (click)="toggle()">
-          {{ title }}
-        </button>
-        @if (isOpen()) {
-          <div class="accordion_body">
-            @for (entry of shelfService.sidebarData(); track entry.name) {
-              <app-sidebar-entry
-                [name]="entry.name"
-                [count]="entry.count"
-              />
-            }
-            <button
-                (click)="openPrompt()"
-                class="create_shelf_button"
-            >
-              Create Shelf
-            </button>
-          </div>
-        }
-        <app-prompt-component
-          [open]="promptOpen()"
-          (close)="onClose()"
-          [title]="'New shelf'"
-          [message]="'Please enter a name for the new shelf'"
-          (submit)="handleCreateShelf($event)"
-        />
-      </div>
-    </div>
+    <mat-accordion>
+      <mat-expansion-panel [expanded]="isOpen()" (expandedChange)="isOpen.set($event)">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{ title }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="accordion_content">
+          @for (entry of shelfService.sidebarData(); track entry.name) {
+            <app-sidebar-entry
+              [name]="entry.name"
+              [count]="entry.count"
+            />
+          }
+          <button
+              mat-button
+              (click)="openPrompt()"
+              class="create_shelf_button"
+          >
+            Create Shelf
+          </button>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <app-prompt-component
+      [open]="promptOpen()"
+      (close)="onClose()"
+      [title]="'New shelf'"
+      [message]="'Please enter a name for the new shelf'"
+      (submit)="handleCreateShelf($event)"
+    />
   `,
-  styleUrl: './accordion-item.component.css',
+  styleUrl: './accordion-item.component.scss',
 })
 export class AccordionItemComponent {
   shelfService = inject(ShelfService);

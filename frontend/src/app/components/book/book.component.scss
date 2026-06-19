@@ -14,8 +14,8 @@
   text-align: left;
   gap: 1rem;
 
-  background-color: var(--secondary-bg-color);
-  border: 1px solid var(--border-color);
+  background-color: var(--mat-sys-surface-container-low);
+  border: 1px solid var(--mat-sys-outline-variant);
 }
 
 .book img {
@@ -52,6 +52,24 @@
   transform: translateY(-2px);
 }
 
-dialog_body {
-  margin: 15px 0;
+.shelf_dialog {
+  padding: 24px;
+}
+
+.dialog_content {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog_body {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 }

@@ -29,7 +29,7 @@ import {ShelfService} from '../../../services/shelf.service';
         />
     </div>
   `,
-  styleUrl: './sidebar-entry.component.css',
+  styleUrl: './sidebar-entry.component.scss',
 })
 export class SidebarEntryComponent {
   @Input() name!: string;

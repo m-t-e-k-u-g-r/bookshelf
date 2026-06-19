@@ -24,7 +24,7 @@ import {ShelfComponent} from '../shelf/shelf.component';
       <app-shelf />
     </div>
   `,
-  styleUrl: './home.component.css',
+  styleUrl: './home.component.scss',
 })
 export class HomeComponent {
   title = signal('Bookshelf (Angular)');

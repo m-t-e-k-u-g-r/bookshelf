@@ -14,7 +14,7 @@ import {AuthService} from './services/auth.service';
       <router-outlet />
     </main>
   `,
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
   bookService = inject(BookService);

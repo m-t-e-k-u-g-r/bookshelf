@@ -6,7 +6,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--kebab-button-color);
+  color: var(--mat-sys-on-surface);
   margin-top: 0.5rem;
 }
 
@@ -17,9 +17,9 @@
   margin: 0;
   padding: 0.5rem 0;
   list-style: none;
-  background: var(--kebab-menu-bg);
-  border: 1px solid var(--kebab-menu-border);
-  box-shadow: 0 2px 8px var(--kebab-menu-shadow);
+  background: var(--mat-sys-surface-container);
+  border: 1px solid var(--mat-sys-outline-variant);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .kebab-menu li {
@@ -28,5 +28,5 @@
 }
 
 .kebab-menu li:hover {
-  background-color: var(--kebab-menu-hover);
+  background-color: var(--mat-sys-surface-container-high);
 }

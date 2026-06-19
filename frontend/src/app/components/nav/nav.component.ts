@@ -9,27 +9,40 @@ import {FormsModule} from '@angular/forms';
 import {SharedService} from '../../services/shared.service';
 import {ToastrService} from 'ngx-toastr';
 
+import {MatButtonModule} from '@angular/material/button';
+import {MatSelectModule} from '@angular/material/select';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatIconModule} from '@angular/material/icon';
+
 @Component({
   selector: 'app-nav',
   imports: [
     PromptComponent,
     CombinedInputComponent,
-    FormsModule
+    FormsModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule
   ],
   template: `
     <div>
       <nav>
-        <button (click)="openPrompt()">
+        <button mat-button (click)="openPrompt()">
           Add Book
         </button>
-        <button (click)="openDialog()">
+        <button mat-button (click)="openDialog()">
           Add Batch
         </button>
-        <button (click)="openExport()">
+        <button mat-button (click)="openExport()">
           Export
         </button>
-        <button (click)="logout()">
-          <i class="fas fa-sign-out-alt"></i>
+        <button mat-icon-button (click)="logout()">
+          <mat-icon>logout</mat-icon>
         </button>
       </nav>
       <app-prompt-component
@@ -46,48 +59,49 @@ import {ToastrService} from 'ngx-toastr';
       </dialog>
       <dialog #exportDialog class="export_dialog">
         <h3>Export data</h3>
-        <select [(ngModel)]="selectedFormat">
-          @for (format of exportFormats; track format) {
-            <option value="{{ format }}">
-              {{ format }}
-            </option>
-          }
-        </select>
+        <mat-form-field appearance="fill">
+          <mat-label>Format</mat-label>
+          <mat-select [(ngModel)]="selectedFormat">
+            @for (format of exportFormats; track format) {
+              <mat-option [value]="format">
+                {{ format }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
         @if (selectedFormat === 'csv') {
           <br/>
-          <label>
-            Delimiter
+          <mat-form-field appearance="fill" style="width: 100px;">
+            <mat-label>Delimiter</mat-label>
             <input
-              style="width: 50px;"
+              matInput
               type="text"
               [(ngModel)]="delimiter"
             />
-          </label>
+          </mat-form-field>
         }
         <div class="export_options">
           @for (a of exportableAttributes; track a) {
-            <label>
-              <input
-                type="checkbox"
+            <mat-checkbox
                 [checked]="attributes_to_export().includes(a)"
-                (change)="selectAttribute(a, !attributes_to_export().includes(a))"
-              />
+                (change)="selectAttribute(a, $event.checked)"
+            >
               {{ a }}
-            </label>
+            </mat-checkbox>
           }
         </div>
         <div class="button-container">
-          <button (click)="export()">
+          <button mat-flat-button color="primary" (click)="export()">
             Export
           </button>
-          <button (click)="closeExport()">
+          <button mat-button (click)="closeExport()">
             Close
           </button>
         </div>
       </dialog>
     </div>
   `,
-  styleUrl: './nav.component.css',
+  styleUrl: './nav.component.scss',
 })
 export class NavComponent {
   bookService = inject(BookService);
@@ -134,7 +148,9 @@ export class NavComponent {
       blob = new Blob([json], {type: 'application/json'});
       a.download = `${date}_books.json`;
     } else {
-      const columnNames = Object.keys(filteredData[0]);
+      const key = filteredData[0];
+      if (!key) return;
+      const columnNames = Object.keys(key);
       let csvContent = columnNames.join(this.delimiter == '' ? ',' : this.delimiter) + '\n';
       let rows: string[] = [];
 

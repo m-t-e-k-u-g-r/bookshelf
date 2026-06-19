@@ -3,31 +3,39 @@ import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} fr
 import {AuthService} from '../../services/auth.service';
 import {Router} from '@angular/router';
 
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+
 @Component({
   selector: 'app-login',
   imports: [
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   template: `
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <label>E-Mail
-        <input type="email" formControlName="email">
-      </label>
+      <mat-form-field appearance="fill">
+        <mat-label>E-Mail</mat-label>
+        <input matInput type="email" formControlName="email">
+      </mat-form-field>
 
-      <label>Password
-        <input type="password" formControlName="password">
-      </label>
+      <mat-form-field appearance="fill">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password">
+      </mat-form-field>
 
       <!-- Nur beim Signup anzeigen -->
       @if (!isLogin) {
-        <div>
-          <label>Confirm Password
-            <input type="password" formControlName="confirmPassword">
-          </label>
-        </div>
+        <mat-form-field appearance="fill">
+          <mat-label>Confirm Password</mat-label>
+          <input matInput type="password" formControlName="confirmPassword">
+        </mat-form-field>
       }
-      <button type="submit">
+      <button mat-flat-button type="submit" color="primary">
         {{ isLogin ? 'Login' : 'Signup' }}
       </button>
       @if (isLogin) {
@@ -46,7 +54,7 @@ import {Router} from '@angular/router';
       }
     </form>
   `,
-  styleUrl: './login.component.css',
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   private authService = inject(AuthService);

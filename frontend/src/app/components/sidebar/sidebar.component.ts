@@ -11,6 +11,6 @@ import {AccordionItemComponent} from '../accordion-item/accordion-item.component
       <app-accordion-body title="Shelves"/>
     </div>
   `,
-  styleUrl: './sidebar.component.css',
+  styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent {}

@@ -5,26 +5,30 @@ export type MenuItem = {
   action: () => void;
 }
 
+import {MatMenuModule} from '@angular/material/menu';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+
 @Component({
   selector: 'app-kebab-menu',
-  imports: [],
+  imports: [
+    MatMenuModule,
+    MatButtonModule,
+    MatIconModule
+  ],
   template: `
-    <div class="kebab-wrapper">
-      <button (click)="toggle()" class="kebab-button">
-        &#8942;
-      </button>
-      @if (open()) {
-        <ul class="kebab-menu">
-          @for (item of items; track item.label) {
-            <li (click)="onItemClick(item)">
-              {{ item.label }}
-            </li>
-          }
-        </ul>
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Book actions">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      @for (item of items; track item.label) {
+        <button mat-menu-item (click)="onItemClick(item)">
+          <span>{{ item.label }}</span>
+        </button>
       }
-    </div>
+    </mat-menu>
   `,
-  styleUrl: './kebab-menu.component.css',
+  styleUrl: './kebab-menu.component.scss',
 })
 export class KebabMenuComponent {
   @Input() items!: MenuItem[];

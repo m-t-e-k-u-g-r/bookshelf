@@ -7,9 +7,12 @@ import {FormsModule} from '@angular/forms';
 import {Book} from '../../models/book.type';
 import {SharedService} from '../../services/shared.service';
 
+import {MatSelectModule} from '@angular/material/select';
+import {MatFormFieldModule} from '@angular/material/form-field';
+
 @Component({
   selector: 'app-shelf',
-  imports: [BookComponent, FormsModule],
+  imports: [BookComponent, FormsModule, MatSelectModule, MatFormFieldModule],
   template: `
     <div>
       <h2>@if (shelfId) {
@@ -18,10 +21,13 @@ import {SharedService} from '../../services/shared.service';
         {{ shelf() }}
       }</h2>
       <div class="menu">
-        <select class="select" [(ngModel)]="sortBy" (ngModelChange)="sortBy.set($event)">
-          <option value="title">Title</option>
-          <option value="author">Author</option>
-        </select>
+        <mat-form-field appearance="fill">
+          <mat-label>Sort by</mat-label>
+          <mat-select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
+            <mat-option value="title">Title</mat-option>
+            <mat-option value="author">Author</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
       <section class="shelf">
         @if (shelfId == undefined) {
@@ -46,14 +52,14 @@ import {SharedService} from '../../services/shared.service';
       </section>
     </div>
   `,
-  styleUrl: './shelf.component.css',
+  styleUrl: './shelf.component.scss',
 })
 export class ShelfComponent implements OnInit {
   bookService = inject(BookService);
   shelfService = inject(ShelfService);
   sharedService = inject(SharedService);
   shelf = signal('Books')
-  shelfId?: string;
+  shelfId?: string | undefined;
   sortBy = signal<'title' | 'author'>('title');
 
   get sortedBooks(): (Book & { shelf?: string })[] {

@@ -5,17 +5,22 @@ import {KebabMenuComponent, MenuItem} from '../kebab-menu/kebab-menu.component';
 import {BookService} from '../../services/book.service';
 import {ShelfService} from '../../services/shelf.service';
 
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatButtonModule} from '@angular/material/button';
+
 @Component({
   selector: 'app-book',
   imports: [
     NgOptimizedImage,
-    KebabMenuComponent
+    KebabMenuComponent,
+    MatCheckboxModule,
+    MatButtonModule
   ],
   template: `
     <div class="book">
       <img
         ngSrc="{{ book.img_url }}"
-        priority
+        priority="high"
         height="640"
         width="400"
         alt="\`{{ book.title }} by {{ book.author }}\`"
@@ -31,24 +36,23 @@ import {ShelfService} from '../../services/shelf.service';
           [items]="menuItems"
         />
       </div>
-      <dialog #shelfSelection>
-        <div>
-          <h3>Edit shelves for "{{book.title}}"</h3>
+      <dialog #shelfSelection class="shelf_dialog">
+        <div class="dialog_content">
+          <h3>Edit shelves for "{{ book.title }}"</h3>
           <div class="dialog_body">
             @for (shelf of shelfService.shelfNames(); track shelf) {
               <div style="margin-bottom: 10px">
-                <label>
-                  <input
-                    #checkbox
-                    type="checkbox"
-                    [checked]="shelves().includes(shelf)"
-                    (change)="handleShelfChange(shelf, checkbox.checked)"
-                  />
+                <mat-checkbox
+                  [checked]="shelves().includes(shelf)"
+                  (change)="handleShelfChange(shelf, $event.checked)"
+                >
                   {{ shelf }}
-                </label>
+                </mat-checkbox>
               </div>
             }
-            <button (click)="handleSave()">
+          </div>
+          <div class="button-container">
+            <button mat-flat-button color="primary" (click)="handleSave()">
               Close
             </button>
           </div>
@@ -56,7 +60,7 @@ import {ShelfService} from '../../services/shelf.service';
       </dialog>
     </div>
   `,
-  styleUrl: './book.component.css',
+  styleUrl: './book.component.scss',
 })
 export class BookComponent {
   @Input() book!: Book;
