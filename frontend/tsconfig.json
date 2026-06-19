@@ -1,38 +1,45 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "resolveJsonModule": true,
 
-    "outDir": "./dist",
     "rootDir": "./src",
+    "outDir": "./dist",
 
     "lib": [
+      "ESNext",
       "DOM",
-      "DOM.Iterable",
-      "ESNext"
+      "DOM.Iterable"
     ],
+    "types": [],
+    "jsx": "preserve",
 
-    "jsx": "react-jsx",
-    "noEmit": true,
-    "isolatedModules": true,
     "strict": true,
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
     "composite": true
   },
-  "include": [
-    "src/**/*",
-    "vite.config.ts"
-  ],
   "exclude": [
     "node_modules",
     "dist"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
   ]
 }

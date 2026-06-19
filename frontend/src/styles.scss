@@ -1,0 +1,79 @@
+@use "material-theme";
+@use 'ngx-toastr/toastr.css';
+:root {
+  --min-font-size: 1rem;
+  --max-font-size: 1.5rem;
+  --primary-spacing: clamp(0.5rem, 2vw, 2rem);
+  --link-color: #007bff;
+  --toast-success: #28a745;
+  --toast-error: #dc3545;
+  --toast-info: #17a2b8;
+  --toast-warning: #ffc107;
+}
+
+body {
+  padding: var(--primary-spacing);
+  font-size: var(--min-font-size);
+}
+
+.deleted {
+  display: none;
+}
+
+.menu {
+  display: flex;
+  justify-content: space-between;
+}
+
+h3 {
+  font-size: clamp(var(--min-font-size), 5vw, var(--max-font-size));
+  margin-bottom: 0.5rem;
+}
+
+.ngx-toastr {
+  background-color: var(--mat-sys-surface) !important;
+  color: var(--mat-sys-on-surface) !important;
+  border-left: 6px solid;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+  opacity: 1 !important;
+}
+
+.toast-success {
+  border-left-color: var(--toast-success) !important;
+  .toast-progress {
+    background-color: var(--toast-success) !important;
+  }
+}
+
+.toast-error {
+  border-left-color: var(--toast-error) !important;
+  .toast-progress {
+    background-color: var(--toast-error) !important;
+  }
+}
+
+.toast-info {
+  border-left-color: var(--toast-info) !important;
+  .toast-progress {
+    background-color: var(--toast-info) !important;
+  }
+}
+
+.toast-warning {
+  border-left-color: var(--toast-warning) !important;
+  .toast-progress {
+    background-color: var(--toast-warning) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book {
+    transition: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --link-color: #4da3ff;
+  }
+}

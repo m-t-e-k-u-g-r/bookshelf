@@ -1,16 +1,11 @@
 import ISBN from 'isbn3';
-import type { Book as dbBook } from "./dbDataManager.js";
+import type {Book} from "../types/book.js";
 import jwt from "jsonwebtoken";
-import type {Request, Response as ExResponse, NextFunction} from "express";
 
 export interface APIResponse {
     status: number;
     data?: any;
     error?: string;
-}
-
-export interface AuthenticatedRequest extends Request {
-    userId?: number;
 }
 
 interface GoogleBooksResponse {
@@ -39,8 +34,8 @@ export enum SortOrder {
     DESC = 'desc'
 }
 
-export function sortDb(books: dbBook[], sortBy: SortBy, order: SortOrder): dbBook[] {
-    return [...books].sort((a: dbBook, b: dbBook) => {
+export function sortDb(books: Book[], sortBy: SortBy, order: SortOrder): Book[] {
+    return [...books].sort((a: Book, b: Book) => {
         const valA = String(a[sortBy] || '');
         const valB = String(b[sortBy] || '');
         if (order === SortOrder.ASC) {
@@ -77,29 +72,13 @@ export function checkAccessToken(authHeader: string | undefined): APIResponse {
     }
 }
 
-export const authMiddleware = (req: Request, res: ExResponse, next: NextFunction) => {
-    const authHeader = req.header('authorization');
-    if (!authHeader) return res.status(401).json({ error: 'No access token provided' });
-
-    const result = checkAccessToken(authHeader);
-
-    if (result.status === 200) {
-        (req as any).userId = result.data.userId;
-        next();
-    } else {
-        res.status(result.status).send('Invalid Token');
-    }
-};
-
 function isGoogleBooksResponse(value: GoogleBooksResponse): boolean {
     if (typeof value !== "object" || value === null) return false;
     if (!("totalItems" in value)) return false;
 
     const v = value as GoogleBooksResponse;
 
-    if (v.totalItems > 0 && !Array.isArray(v.items)) return false;
-
-    return true;
+    return !(v.totalItems > 0 && !Array.isArray(v.items));
 }
 
 export function formatISBN(rawIsbn: string): string | undefined {
