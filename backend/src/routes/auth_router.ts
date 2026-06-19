@@ -1,12 +1,13 @@
 import express from "express";
 import { type Router, type Request, type Response } from "express";
-import {DbDataManager as db} from "../lib/dbDataManager.js";
+import {UserService as userService} from "../services/user.service.js";
 import bcrypt from 'bcrypt';
 import jwt, {type JwtPayload} from 'jsonwebtoken';
 import { SqlError } from 'mariadb';
-import {type AuthenticatedRequest, authMiddleware} from "../lib/utils.js";
 import zxcvbn from 'zxcvbn';
 import { rateLimit } from 'express-rate-limit';
+import {authMiddleware} from "../middleware/auth.middleware.js";
+import type {AuthenticatedRequest} from "../types/request.js";
 
 const router: Router = express.Router();
 
@@ -27,7 +28,7 @@ async function generateRefreshToken(id: number) {
     });
 
     try {
-        await db.addRefreshToken(id, jti);
+        await userService.addRefreshToken(id, jti);
     } catch (e) {
         return null;
     }
@@ -53,7 +54,7 @@ router.route('/me')
         const userId = req.userId;
         if (!userId) return res.sendStatus(401);
 
-        const user = await db.getUserById(userId);
+        const user = await userService.getUserById(userId);
         if (!user) return res.sendStatus(401);
 
         return res.status(200).json({ id: userId, email: user.email});
@@ -78,9 +79,9 @@ router.route('/signup')
         const hash: string = await bcrypt.hash(password, 12);
 
         try {
-            await db.signupUser(email, hash);
+            await userService.signupUser(email, hash);
 
-            const entry = await db.getUser(email);
+            const entry = await userService.getUser(email);
             if (entry == null) return res.sendStatus(500);
             const id = entry.id;
 
@@ -110,7 +111,7 @@ router.route('/login')
         if (email == undefined || password == undefined) return res.status(400).json({error: 'Invalid request body'});
 
         try {
-            const entry = await db.getUser(email);
+            const entry = await userService.getUser(email);
             if (entry == null) return res.status(401).json({error: 'Invalid credentials'});
 
             const correct = await checkPassword(password, entry.password_hash);
@@ -145,8 +146,8 @@ router.route('/refresh')
             const { jti, userId } = decoded as JwtPayload;
 
             if (!jti || !userId) return res.status(403).json({error: 'Malformed token'});
-            const db_entry = await db.getRefreshTokenByJti(jti);
-            if (!db_entry || new Date(db_entry.expires_at) < new Date()) return res.status(403).json({error: 'Invalid refresh token'});
+            const userService_entry = await userService.getRefreshTokenByJti(jti);
+            if (!userService_entry || new Date(userService_entry.expires_at) < new Date()) return res.status(403).json({error: 'Invalid refresh token'});
 
             const newAccessToken = generateAccessToken(userId);
             return res.status(200).json({ accessToken: newAccessToken });
@@ -162,7 +163,7 @@ router.route('/logout')
         if (!userId) return res.sendStatus(401);
 
         try {
-            await db.revokeRefreshTokens(userId);
+            await userService.revokeRefreshTokens(userId);
             res.clearCookie('refreshToken');
             return res.sendStatus(204);
         } catch (e) {
@@ -176,7 +177,7 @@ router.route('/delete-acc')
         const userId = req.userId;
         if (!userId) return res.sendStatus(401);
         try {
-            await db.deleteUser(userId);
+            await userService.deleteUser(userId);
             return res.sendStatus(204);
         } catch (e) {
             return res.status(500).json({error: 'Failed to delete account'});

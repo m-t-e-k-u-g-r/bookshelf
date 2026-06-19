@@ -1,7 +1,11 @@
 import express from 'express';
 import { type Router, type Response } from "express";
-import {DbDataManager as db, type BookInShelf, type SidebarData} from '../lib/dbDataManager.js';
-import {type AuthenticatedRequest, authMiddleware, cleanIsbn} from "../lib/utils.js";
+import {cleanIsbn} from "../lib/utils.js";
+import type {BookInShelf} from "../types/book.js";
+import {ShelfService as shelfService} from "../services/shelf.service.js";
+import type {SidebarData} from "../types/shelf.js";
+import {authMiddleware} from "../middleware/auth.middleware.js";
+import type {AuthenticatedRequest} from "../types/request.js";
 
 const router: Router = express.Router();
 
@@ -13,7 +17,7 @@ router.route('/')
         const userId = req.userId;
         if (typeof userId !== "number") return res.status(400).json({error: 'Invalid user ID'});
         try {
-            const shelves: BookInShelf[] = await db.getShelvesWithBooks(userId);
+            const shelves: BookInShelf[] = await shelfService.getShelvesWithBooks(userId);
             return res.status(200).send(shelves);
         } catch (e) {
             return res.status(500).json({error: 'Failed to get shelves with books'});
@@ -28,7 +32,7 @@ router.route('/')
         if (isbn == undefined || selectedShelvesId == undefined) return res.status(400).json({error: 'Invalid request body'});
 
         try {
-            await db.editShelvesOfBook(isbn, selectedShelvesId, userId);
+            await shelfService.editShelvesOfBook(isbn, selectedShelvesId, userId);
             return res.status(200).json({ success: true });
         } catch (e) {
             return res.status(500).json({error: 'Failed to edit shelves of book'});
@@ -43,7 +47,7 @@ router.route('/')
         if (oldShelfName == undefined || newShelfName == undefined) return res.status(400).json({error: 'Invalid request body'});
 
         try {
-            await db.updateShelfName(oldShelfName, newShelfName, userId);
+            await shelfService.updateShelfName(oldShelfName, newShelfName, userId);
             return res.status(200).json({ success: true });
         } catch (e) {
             return res.status(500).json({error: 'Failed to update shelf name'});
@@ -55,7 +59,7 @@ router.route('/sidebar').get(async (req: AuthenticatedRequest, res: Response) =>
     const userId = req.userId;
     if (typeof userId !== "number") return res.status(400).json({error: 'Invalid user ID'});
     try {
-        const response: SidebarData[] = await db.getSidebarData(userId);
+        const response: SidebarData[] = await shelfService.getSidebarData(userId);
         return res.status(200).send(response);
     } catch (e) {
         return res.status(500).json({error: 'Failed to get sidebar data'});
@@ -67,7 +71,7 @@ router.route('/names').get(async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
     if (typeof userId !== "number") return res.status(400).json({error: 'Invalid user ID'});
     try {
-        const response: string[] = await db.getShelfNames(userId);
+        const response: string[] = await shelfService.getShelfNames(userId);
         return res.status(200).send(response);
     }  catch (e) {
         return res.status(500).json({error: 'Failed to get shelf names'});
@@ -81,7 +85,7 @@ router.route('/b/:isbn').get(async (req: AuthenticatedRequest, res: Response) =>
     const isbn = req.params.isbn;
     if (typeof isbn !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
     try {
-        const response: string[] | undefined = await db.getShelvesOfBook(cleanIsbn(isbn), userId);
+        const response: string[] | undefined = await shelfService.getShelvesOfBook(cleanIsbn(isbn), userId);
         if (response == undefined) return res.status(404).json({error: 'Book not found'});
         return res.status(200).send(response);
     } catch (e) {
@@ -97,7 +101,7 @@ router.route('/:shelfName')
         const shelfName = req.params.shelfName;
         if (typeof shelfName !== 'string') return res.status(400).json({error: 'Invalid shelf name'});
         try {
-            const response: BookInShelf[] = await db.getBooksByShelf(shelfName, userId);
+            const response: BookInShelf[] = await shelfService.getBooksByShelf(shelfName, userId);
             return res.status(200).send(response);
         } catch (e) {
             return res.status(500).json({error: `Failed to get books in shelf ${shelfName}`});
@@ -110,7 +114,7 @@ router.route('/:shelfName')
         const shelfName = req.params.shelfName;
         if (typeof shelfName !== 'string' || shelfName == '') return res.status(400).json({error: 'Invalid shelf name'});
         try {
-            await db.addShelf(shelfName, userId);
+            await shelfService.addShelf(shelfName, userId);
             return res.status(201).json({ message: `Shelf '${shelfName}' created.` });
         } catch (e) {
             return res.status(500).json({error: 'Failed to create shelf'});
@@ -123,7 +127,7 @@ router.route('/:shelfName')
         const shelfName = req.params.shelfName;
         if (typeof shelfName !== 'string') return res.status(400).json({error: 'Invalid shelf name'});
         try {
-            await db.deleteShelf(shelfName, userId);
+            await shelfService.deleteShelf(shelfName, userId);
             return res.status(204).json({ success: true });
         } catch (e) {
             return res.status(500).json({error: 'Failed to delete shelf'});
