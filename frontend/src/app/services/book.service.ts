@@ -26,15 +26,16 @@ export class BookService {
         })
       ).subscribe(books => {
         this.books.set(books);
-      })
+      });
   }
 
   addBook(isbn: string) {
     const cleanIsbn = removeHyphen(isbn);
 
-    return this.http.post(this.baseUrl + cleanIsbn, {
+    return this.http.post<void>(this.baseUrl + cleanIsbn, {
     }).pipe(
       tap(() => {
+        this.getBooks();
         this.toastr.success(`Book with ISBN ${isbn} successfully added`, 'Success');
       }),
       catchError(err => {
@@ -52,6 +53,7 @@ export class BookService {
       {headers: {'Content-Type': 'application/json'}}
     ).pipe(
       tap(() => {
+        this.getBooks();
         this.toastr.success(`Batch of ${batch.length} books successfully added`, 'Success');
       }),
       catchError(err => {
@@ -69,6 +71,7 @@ export class BookService {
     return this.http.delete(this.baseUrl + isbn)
       .pipe(
         tap(() => {
+          this.getBooks();
           this.toastr.success(`Book "${title}" successfully deleted`, 'Success');
         }),
         catchError(err => {

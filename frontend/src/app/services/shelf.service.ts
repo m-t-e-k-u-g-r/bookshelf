@@ -73,6 +73,7 @@ export class ShelfService {
     return this.http.post(this.baseUrl + shelfName, {  })
       .pipe(
         tap(() => {
+          this.getSidebarData();
           this.toastr.success(`Shelf "${shelfName}" successfully created`, 'Success');
         }),
         catchError(err => {
@@ -89,6 +90,7 @@ export class ShelfService {
       { headers: {'Content-Type': 'application/json'} }
     ).pipe(
       tap(() => {
+        this.getSidebarData();
         this.toastr.success(`Shelf "${oldName}" renamed to "${newName}"`, 'Success');
       }),
       catchError(err => {
@@ -103,6 +105,7 @@ export class ShelfService {
     return this.http.delete(this.baseUrl + shelfName)
       .pipe(
         tap(() => {
+          this.getSidebarData();
           this.toastr.success(`Shelf "${shelfName}" successfully deleted`, 'Success');
         }),
         catchError(err => {
@@ -119,6 +122,7 @@ export class ShelfService {
       { headers: {'Content-Type': 'application/json'} }
     ).pipe(
       tap(() => {
+        this.getSidebarData();
         this.toastr.success('Shelf assignments updated', 'Success');
       }),
       catchError(err => {
