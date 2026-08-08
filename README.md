@@ -2,10 +2,11 @@
 
 ## Stack
 - Node + Express backend
-- React frontend
-- TypeScript (front- and backend)
+- Angular
 - MariaDB
 - Docker
+
+Backend will be replaced with Java Spring Boot in the future
 
 ## Project structure
 - monorepo with workspaces
