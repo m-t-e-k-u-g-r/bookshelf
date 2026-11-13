@@ -1,0 +1,12 @@
+.accordion_content {
+  display: flex;
+  flex-direction: column;
+}
+
+.create_shelf_button {
+  padding: 1.25rem 1rem;
+  width: 100%;
+  border-radius: 0;
+  text-align: left;
+  font-weight: bold;
+}

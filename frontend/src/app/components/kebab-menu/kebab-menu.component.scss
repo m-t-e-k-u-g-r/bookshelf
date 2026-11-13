@@ -1,0 +1,32 @@
+.kebab-wrapper {
+  position: relative;
+}
+
+.kebab-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--mat-sys-on-surface);
+  margin-top: 0.5rem;
+}
+
+.kebab-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 1rem;
+  margin: 0;
+  padding: 0.5rem 0;
+  list-style: none;
+  background: var(--mat-sys-surface-container);
+  border: 1px solid var(--mat-sys-outline-variant);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.kebab-menu li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.kebab-menu li:hover {
+  background-color: var(--mat-sys-surface-container-high);
+}

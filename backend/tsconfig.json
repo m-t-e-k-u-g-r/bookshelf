@@ -6,7 +6,7 @@
     "resolveJsonModule": true,
 
     "rootDir": "./src",
-    "outDir": "../dist/backend",
+    "outDir": "./dist",
 
     "lib": ["ESNext"],
     "types": ["node"],

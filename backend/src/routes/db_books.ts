@@ -1,18 +1,37 @@
 import express from 'express';
-import { type Router, type Request, type Response } from "express";
-import { DbDataManager as db, type Book } from '../lib/dbDataManager.js';
-import {sortDb, SortBy, SortOrder, cleanIsbn, formatISBN, type APIResponse, getBook} from '../lib/utils.js';
+import { type Router, type Response } from "express";
+import {BooksService as bookService} from "../services/books.service.js";
+import {
+    sortDb,
+    SortBy,
+    SortOrder,
+    cleanIsbn,
+    formatISBN,
+    getBook,
+    type APIResponse,
+} from '../lib/utils.js';
+import type {Book} from "../types/book.js";
+import {authMiddleware} from "../middleware/auth.middleware.js";
+import type {AuthenticatedRequest} from "../types/request.js";
 
 const router: Router = express.Router();
 
+router.use(authMiddleware);
+
 router.route('/')
-    .get(async (req: Request, res: Response) => {
+    .get(async (req: AuthenticatedRequest, res: Response) => {
         // #swagger.tags = ['DB Books']
         // #swagger.parameters['sortBy'] = { $ref: '#/components/parameters/SortByParam' }
         // #swagger.parameters['order'] = { $ref: '#/components/parameters/OrderParam' }
-        const books: Book[] = await db.getBooks();
-        let { sortBy, order, hide } = req.query;
+        const userId = req.userId;
+        if (!userId) return res.sendStatus(401);
+        let books: Book[] = await bookService.getBooks(userId);
+        books = books.map(b => ({
+            ...b,
+            read_status: Boolean(b.read_status)
+        }));
 
+        let { sortBy, order, hide } = req.query;
         if (!Object.values(SortBy).includes(sortBy as SortBy)) {
             sortBy = SortBy.TITLE;
         }
@@ -30,11 +49,13 @@ router.route('/')
             }
         }
 
-        return res.status(200).send(books);
+        return res.status(200).send(sortedBooks);
     });
 
-router.route('/batch').post(async (req: Request, res: Response) => {
+router.route('/batch').post(async (req: AuthenticatedRequest, res: Response) => {
     // #swagger.tags = ['DB Books']
+    const userId = req.userId;
+    if (typeof userId !== "number") return res.status(400).json({error: 'Invalid user ID'});
     const isbns: string[] = req.body.isbns;
     if (!Array.isArray(isbns) || isbns.length == 0) {
         return res.status(400).json({ error: 'Invalid request body' });
@@ -43,44 +64,67 @@ router.route('/batch').post(async (req: Request, res: Response) => {
     let added: number = 0;
     const cleanIsbns: string[] = isbns
         .map(cleanIsbn)
-        .map(formatISBN)
         .filter((isbn: string | undefined): isbn is string => isbn !== undefined);
 
     for (const isbn of cleanIsbns) {
-        const response: APIResponse = await getBook(isbn);
-        if (response.status !== 200) {
-
-            continue;
+        const db_entry = await bookService.getBookByISBN(isbn);
+        if (db_entry == undefined) {
+            const response: APIResponse = await getBook(isbn);
+            if (response.status !== 200) {
+                console.log('invalid response')
+                continue;
+            }
+            const entry: Book = response.data;
+            booksToAdd.push(entry);
+            added ++;
+        } else {
+            try {
+                await bookService.assignBook(isbn, userId);
+                added ++;
+            } catch (e) {
+                console.error('failed to assign book', e);
+            }
         }
-        const entry: Book = response.data;
-        booksToAdd.push(entry);
-        added ++;
     }
+    if (added == 0) return res.status(400).json({
+        error: 'Failed to add any books',
+        result: {
+            added: 0,
+            invalid: isbns.length
+        }
+    });
     const invalid: number = isbns.length - added;
     try {
-        await db.addBatch(booksToAdd);
+        await bookService.addBatch(booksToAdd);
+        for (const book of booksToAdd) {
+            await bookService.assignBook(book.isbn, userId);
+        }
     } catch (e) {
         console.error('Error while adding books:', e);
         return res.status(500).json({ error: 'Failed to add books' });
     }
     return res.status(201).json({
         message: `Added ${added} books, ${invalid} invalid ISBNs`,
+        result: {
+            added: added,
+            invalid: invalid
+        }
     });
 });
 
 router.route('/:isbn')
-    .get(async (req: Request, res: Response) => {
+    .get(async (req: AuthenticatedRequest, res: Response) => {
         // #swagger.tags = ['DB Books']
         const isbn = req.params.isbn;
         if (isbn == null) return res.status(400).json({error: 'Invalid ISBN'});
         if (typeof isbn == 'string') {
-            const book: Book | undefined = await db.getBookByISBN(cleanIsbn(isbn));
+            const book: Book | undefined = await bookService.getBookByISBN(cleanIsbn(isbn));
             if (book == undefined) return res.status(404).json({error: 'Book not found'});
             return res.status(200).send(book);
         } else {
             let books: Book[] = [];
             for (const i of isbn) {
-                const book: Book | undefined = await db.getBookByISBN(cleanIsbn(i));
+                const book: Book | undefined = await bookService.getBookByISBN(cleanIsbn(i));
                 if (book != undefined) {
                     books.push(book);
                 }
@@ -89,40 +133,49 @@ router.route('/:isbn')
             return res.status(200).send(books);
         }
     })
-    .post(async (req: Request, res: Response) => {
+    .post(async (req: AuthenticatedRequest, res: Response) => {
         // #swagger.tags = ['DB Books']
         const isbn = req.params.isbn;
         if (typeof isbn !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
+        const userId = req.userId;
+        if (!userId) return res.sendStatus(401);
 
         const validISBN: string | undefined = formatISBN(isbn);
         if (validISBN == undefined) return res.status(400).json({error: 'Invalid ISBN'});
-
-        const response: APIResponse = await getBook(validISBN);
-        if (response.status !== 200) {
-            return res.status(response.status).json({error: response.error});
-        }
-
-        const entry: Book = response.data;
-        try {
-            await db.addBook(entry);
-            return res.status(201).json({
-                message: `Book '${entry.title}' added successfully`,
-            });
-        } catch (e: any) {
-            if (e.message == 'BOOK_ALREADY_EXISTS') {
-                return res.status(409).json({error: 'Book already exists'});
+        const cleanISBN = cleanIsbn(validISBN);
+        const db_entry = await bookService.getBookByISBN(cleanISBN);
+        if (db_entry == undefined) {
+            const response: APIResponse = await getBook(validISBN);
+            if (response.status !== 200) {
+                return res.status(response.status).json({error: response.error});
             }
+
+            const entry: Book = response.data;
+            try {
+                await bookService.addBook(entry);
+                return res.status(201).json({
+                    message: `Book '${entry.title}' added successfully`,
+                });
+            } catch (e: any) {
+                return res.status(500).json({ error: 'Failed to add book' });
+            }
+        }
+        try {
+            await bookService.assignBook(cleanISBN, userId)
+        } catch (e) {
             return res.status(500).json({ error: 'Failed to add book' });
         }
     })
-    .delete(async (req: Request, res: Response) => {
+    .delete(async (req: AuthenticatedRequest, res: Response) => {
         // #swagger.tags = ['DB Books']
         const isbn = req.params.isbn;
+        const userId = req.userId;
+        if (typeof userId !== "number") return res.status(400).json({error: 'Invalid user ID'});
         if (typeof isbn !== 'string') return res.status(400).json({error: 'Invalid ISBN'});
 
         try {
-            await db.deleteBook(isbn);
-            return res.sendStatus(204);
+            await bookService.unassignBook(isbn, userId);
+            return res.status(204).json({ success: true });
         } catch (e) {
             return res.status(500).json({ error: 'Failed to delete book' });
         }

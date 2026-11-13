@@ -1,0 +1,48 @@
+name: bookshelf
+services:
+  db:
+    image: mariadb:11.8
+    container_name: database
+    env_file:
+      - .env
+    environment:
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+    volumes:
+      - data:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d
+    ports:
+      - '3306:3306'
+
+  backend:
+    container_name: backend
+    image: ghcr.io/m-t-e-k-u-g-r/bookshelf-backend:latest
+    build: ./backend
+    ports:
+      - '3000:3000'
+    environment:
+      DB_HOST: db
+      MARIADB_HOST: db
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+      API_KEY: ${API_KEY}
+    depends_on:
+      - db
+
+  frontend:
+    container_name: frontend
+    image: ghcr.io/m-t-e-k-u-g-r/bookshelf-frontend:latest
+    build: ./frontend
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+
+volumes:
+  data:

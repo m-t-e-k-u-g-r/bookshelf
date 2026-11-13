@@ -1,0 +1,12 @@
+.combined_input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 24px;
+}
+
+.button-container {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}

@@ -1,5 +1,6 @@
 import ISBN from 'isbn3';
-import type { Book as dbBook } from "./dbDataManager.js";
+import type {Book} from "../types/book.js";
+import jwt from "jsonwebtoken";
 
 export interface APIResponse {
     status: number;
@@ -33,8 +34,8 @@ export enum SortOrder {
     DESC = 'desc'
 }
 
-export function sortDb(books: dbBook[], sortBy: SortBy, order: SortOrder): dbBook[] {
-    return [...books].sort((a: dbBook, b: dbBook) => {
+export function sortDb(books: Book[], sortBy: SortBy, order: SortOrder): Book[] {
+    return [...books].sort((a: Book, b: Book) => {
         const valA = String(a[sortBy] || '');
         const valB = String(b[sortBy] || '');
         if (order === SortOrder.ASC) {
@@ -45,15 +46,39 @@ export function sortDb(books: dbBook[], sortBy: SortBy, order: SortOrder): dbBoo
     })
 }
 
+export function checkAccessToken(authHeader: string | undefined): APIResponse {
+    if (process.env.ACCESS_TOKEN_SECRET == undefined) return { status: 500 }
+    if (!authHeader) return { status: 401, error: 'No access token provided' }
+
+    let token = '';
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+    } else if (authHeader) {
+        token = authHeader;
+    }
+
+    let userId: number | undefined;
+    try {
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        userId = (decoded as { userId: number }).userId;
+        return {
+            status: 200,
+            data: {
+                userId: userId
+            }
+        }
+    } catch (err) {
+        return { status: 401 }
+    }
+}
+
 function isGoogleBooksResponse(value: GoogleBooksResponse): boolean {
     if (typeof value !== "object" || value === null) return false;
     if (!("totalItems" in value)) return false;
 
     const v = value as GoogleBooksResponse;
 
-    if (v.totalItems > 0 && !Array.isArray(v.items)) return false;
-
-    return true;
+    return !(v.totalItems > 0 && !Array.isArray(v.items));
 }
 
 export function formatISBN(rawIsbn: string): string | undefined {

@@ -8,10 +8,11 @@
 
 ## Stack
 - Node + Express backend
-- React frontend
-- TypeScript (front- and backend)
+- Angular
 - MariaDB
 - Docker
+
+Backend will be replaced with Java Spring Boot in the future
 
 ## Project structure
 - monorepo with workspaces
@@ -79,7 +80,3 @@ Recreate database including schema and seed data.
 Check out `http://localhost:5500/swagger-docs` for swagger API documentation
 
 *Requires swagger to be generated and backend to be running*
-
-### Frontend
-**Component diagram**
-![Component diagram](frontend/docs/frontend_component_diagram.svg)
